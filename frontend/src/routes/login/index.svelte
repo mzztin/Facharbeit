@@ -1,0 +1,68 @@
+<script lang="ts">
+	import { TextInput, PasswordInput, Button } from "carbon-components-svelte";
+	import axios from "axios";
+
+	let username: string;
+	let password: string;
+
+	let success = null;
+	let error = null;
+
+	async function handleLogin() {
+		if (!username || !password) {
+			alert("You have to give both username and password!");
+			return;
+		}
+
+		try {
+			const res = await axios.post("http://localhost:4000/users/login", {
+				username,
+				password
+			});
+
+			console.log("status", res.status);
+
+			console.log("data", JSON.stringify(res));
+			if (res.status === 201) {
+				success = true;
+				return;
+			}
+
+			if (res.status === 400 || res.status === 401) {
+				success = false;
+				error = true;
+			}
+
+			console.log({ error, success });
+		} catch (e) {
+			error = true;
+			console.log({ e });
+		}
+	}
+</script>
+
+<h2>Login</h2>
+<br />
+
+{#if success}
+	<h1>Logged in</h1>
+{:else}
+	<TextInput
+		bind:value={username}
+		labelText="Username"
+		placeholder="Enter username"
+		min={2}
+		max={16}
+	/>
+	<PasswordInput bind:value={password} labelText="Password" placeholder="Enter password" />
+
+	<br />
+
+	{#if error}
+		<h4>Could not login</h4>
+
+		<br />
+	{/if}
+
+	<Button class="space-y-3" on:click={handleLogin} kind="tertiary">Login</Button>
+{/if}
