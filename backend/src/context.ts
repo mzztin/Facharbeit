@@ -1,5 +1,5 @@
-import { Session } from 'express-session';
+import { Session } from "express-session";
 
 export interface MySession extends Session {
-  userId?: number;
+	userId?: number;
 }

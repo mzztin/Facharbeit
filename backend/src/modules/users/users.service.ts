@@ -1,85 +1,85 @@
 import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import UserEntity from './user.entity';
-import { HashService } from '../hash/hash.service';
-import { Socket } from 'socket.io';
-import { Session } from 'express-session';
+	ConflictException,
+	Injectable,
+	NotFoundException,
+	UnauthorizedException
+} from "@nestjs/common";
+import UserEntity from "./user.entity";
+import { HashService } from "../hash/hash.service";
+import { Socket } from "socket.io";
+import { Session } from "express-session";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly hashService: HashService) {}
+	constructor(private readonly hashService: HashService) {}
 
-  async existsUser(username: string): Promise<boolean> {
-    const user = await this.getUser(username);
-    if (user) return true;
+	async existsUser(username: string): Promise<boolean> {
+		const user = await this.getUser(username);
+		if (user) return true;
 
-    return false;
-  }
+		return false;
+	}
 
-  async createUser(username: string, password: string): Promise<UserEntity> {
-    if (await this.existsUser(username)) {
-      throw new ConflictException('User with given username already exists');
-    }
+	async createUser(username: string, password: string): Promise<UserEntity> {
+		if (await this.existsUser(username)) {
+			throw new ConflictException("User with given username already exists");
+		}
 
-    const user = new UserEntity();
-    user.username = username;
-    user.password = this.hashService.hashPassword(password);
-    user.createdAt = new Date();
-    user.sentMessages = [];
-    user.recievedMessages = [];
+		const user = new UserEntity();
+		user.username = username;
+		user.password = this.hashService.hashPassword(password);
+		user.createdAt = new Date();
+		user.sentMessages = [];
+		user.recievedMessages = [];
 
-    return user.save();
-  }
+		return user.save();
+	}
 
-  async getUserById(id: number) {
-    const user = UserEntity.findOne(id);
+	async getUserById(id: number) {
+		const user = UserEntity.findOne(id);
 
-    if (!user) {
-      return undefined;
-    }
+		if (!user) {
+			return undefined;
+		}
 
-    return user;
-  }
+		return user;
+	}
 
-  async getUser(username: string): Promise<UserEntity | undefined> {
-    const users = await UserEntity.createQueryBuilder('user')
-      .where('LOWER(user.username) = LOWER(:username)', { username })
-      .getMany();
+	async getUser(username: string): Promise<UserEntity | undefined> {
+		const users = await UserEntity.createQueryBuilder("user")
+			.where("LOWER(user.username) = LOWER(:username)", { username })
+			.getMany();
 
-    if (users.length == 0) {
-      return undefined;
-    }
+		if (users.length == 0) {
+			return undefined;
+		}
 
-    return users[0];
-  }
+		return users[0];
+	}
 
-  async getUsers() {
-    return await UserEntity.find();
-  }
+	async getUsers() {
+		return await UserEntity.find();
+	}
 
-  async validateLogin(username: string, password: string) {
-    const user = await this.getUser(username);
+	async validateLogin(username: string, password: string) {
+		const user = await this.getUser(username);
 
-    if (!user) {
-      throw new UnauthorizedException('User does not exist');
-    }
+		if (!user) {
+			throw new UnauthorizedException("User does not exist");
+		}
 
-    if (!this.hashService.matches(user.password, password)) {
-      throw new UnauthorizedException('Password does not match with user');
-    }
+		if (!this.hashService.matches(user.password, password)) {
+			throw new UnauthorizedException("Password does not match with user");
+		}
 
-    return user;
-  }
+		return user;
+	}
 
-  async getSocketUserByCookie(socket: Socket) {
-    const cookie = socket.handshake.headers.cookie;
+	async getSocketUserByCookie(socket: Socket) {
+		const cookie = socket.handshake.headers.cookie;
 
-    if (!cookie) {
-      return null;
-    }
-  }
+		if (!cookie) {
+			return null;
+		}
+	}
 }
