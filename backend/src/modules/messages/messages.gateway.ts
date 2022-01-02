@@ -11,12 +11,12 @@ import MessageDTO from './dto/message.dto';
 import { EnterRoomDTO } from './dto/room.dto';
 
 @WebSocketGateway()
-export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class MessagesGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server: Server;
 
-  public constructor() {
-    
-  }
+  public constructor() {}
 
   handleConnection(client: Socket, ...args: any[]) {
     console.log(`Client ${client.id} connected`);
@@ -26,16 +26,13 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     console.log(`Client ${client.id} disconnected`);
   }
 
-  @SubscribeMessage("sendMessage")
+  @SubscribeMessage('sendMessage')
   sendMessage(client: Socket, @MessageBody() data: MessageDTO) {
     // check here
 
-    this.server.emit("recieveMessage", data);
+    this.server.emit('recieveMessage', data);
   }
 
-  @SubscribeMessage("g")
-  enterRoom(client: Socket, @MessageBody() data: EnterRoomDTO) {
-    
-  }
-
+  @SubscribeMessage('g')
+  enterRoom(client: Socket, @MessageBody() data: EnterRoomDTO) {}
 }

@@ -76,14 +76,10 @@ export class UsersService {
   }
 
   async getSocketUserByCookie(socket: Socket) {
-      const cookie = socket.handshake.headers.cookie;
+    const cookie = socket.handshake.headers.cookie;
 
-      if (!cookie) {
-        return null;
-      }
-
-      
-
-
+    if (!cookie) {
+      return null;
     }
+  }
 }
