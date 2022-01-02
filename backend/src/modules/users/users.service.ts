@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import UserEntity from './user.entity';
 import { HashService } from '../hash/hash.service';
+import { Socket } from 'socket.io';
+import { Session } from 'express-session';
 
 @Injectable()
 export class UsersService {
@@ -72,4 +74,16 @@ export class UsersService {
 
     return user;
   }
+
+  async getSocketUserByCookie(socket: Socket) {
+      const cookie = socket.handshake.headers.cookie;
+
+      if (!cookie) {
+        return null;
+      }
+
+      
+
+
+    }
 }
