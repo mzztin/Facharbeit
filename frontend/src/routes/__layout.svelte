@@ -10,7 +10,7 @@
 
 		if (res.ok) {
 			const json = await res.json();
-			
+
 			return {
 				props: {
 					username: json,
