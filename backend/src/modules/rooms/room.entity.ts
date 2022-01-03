@@ -25,7 +25,7 @@ export default class RoomEntity extends BaseEntity {
 	@ManyToOne(() => RoomMessageEntity, (msg) => msg.room)
 	messages: RoomMessageEntity[];
 
-	async createCode() {
+	async genCodeAndSave() {
 		let code = Math.floor(Math.random() * 999999) + 100000;
 
 		while ((await RoomEntity.find({ where: { code: code.toString() } })).length !== 0) {

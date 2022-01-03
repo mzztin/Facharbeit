@@ -1,3 +1,10 @@
+/**
+ * 
+ * Socket und Session verbindung https://github.com/nestjs/nest/issues/445
+ * 
+ */
+
+import { BadRequestException, Session } from "@nestjs/common";
 import {
 	WebSocketGateway,
 	WebSocketServer,
@@ -7,21 +14,23 @@ import {
 	MessageBody
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { MySession } from "../../context";
 import MessageDTO from "./dto/message.dto";
 import { EnterRoomDTO } from "./dto/room.dto";
+import { RoomsService } from '../rooms/rooms.service';
 
 @WebSocketGateway()
 export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
 
-	public constructor() {}
+	public constructor(private roomsService: RoomsService) {}
 
 	handleConnection(client: Socket, ...args: any[]) {
-		console.log(`Client ${client.id} connected`);
+		console.debug(`Client ${client.id} connected`);
 	}
 
 	handleDisconnect(client: Socket) {
-		console.log(`Client ${client.id} disconnected`);
+		console.debug(`Client ${client.id} disconnected`);
 	}
 
 	@SubscribeMessage("sendMessage")
@@ -31,6 +40,22 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 		this.server.emit("recieveMessage", data);
 	}
 
-	@SubscribeMessage("g")
-	enterRoom(client: Socket, @MessageBody() data: EnterRoomDTO) {}
+	@SubscribeMessage("joinRoom")
+	enterRoom(client: Socket, @MessageBody() { code }: EnterRoomDTO, @Session() session: MySession) {
+		console.log({ session });
+	
+		if (!this.roomsService.isValidCode(code)) {
+			throw new BadRequestException("Room with given code not found");
+		}
+
+
+		client.join(code)
+
+		this.server.emit("userJoinedRoom", {
+
+		})
+	}
+
+	@SubscribeMessage("leaveRoom")
+
 }
