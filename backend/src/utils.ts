@@ -1,9 +1,9 @@
 // https://github.com/nestjs/nest/issues/445
 
-// @ts-ignore
 import { IoAdapter } from "@nestjs/platform-socket.io";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import * as sharedsession from "express-socket.io-session";
+
+const sharedsession = require("express-socket.io-session");
 
 /**
  * Enable session tokens for web sockets by using express-socket.io-session

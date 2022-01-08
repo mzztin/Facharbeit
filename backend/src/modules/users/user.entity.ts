@@ -1,10 +1,6 @@
 import {
-	BaseEntity,
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	CreateDateColumn,
-	OneToMany
+	BaseEntity, Column,
+	CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn
 } from "typeorm";
 import MessageEntity from "../messages/message.entity";
 

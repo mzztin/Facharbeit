@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
+import { HashModule } from "../hash/hash.module";
+import { HashService } from "../hash/hash.service";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
-import { HashService } from "../hash/hash.service";
-import { HashModule } from "../hash/hash.module";
 
 @Module({
 	imports: [HashModule],

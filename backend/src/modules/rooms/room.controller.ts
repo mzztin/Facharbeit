@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Session, UnauthorizedException } from "@nestjs/common";
 import { MySession } from "../../context";
-import { RoomsService } from './rooms.service';
+import { RoomsService } from "./rooms.service";
 
 @Controller("rooms")
 export class RoomController {
@@ -11,11 +11,10 @@ export class RoomController {
 		const userId = session.userId;
 
 		if (!userId) {
-			throw new UnauthorizedException("Not logged in")
+			throw new UnauthorizedException("Not logged in");
 		}
 
 		return this.roomsService.getOwnRooms(userId);
-
 	}
 
 	@Post()

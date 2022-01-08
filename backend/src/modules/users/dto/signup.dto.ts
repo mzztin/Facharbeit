@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, Min, Max, MinLength, MaxLength, Matches } from "class-validator";
+import { IsNotEmpty, MaxLength, MinLength } from "class-validator";
 
 export class SignUpDTO {
 	@MinLength(2)

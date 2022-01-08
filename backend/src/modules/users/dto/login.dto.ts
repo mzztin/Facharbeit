@@ -1,12 +1,5 @@
 import {
-	IsEmail,
-	IsNotEmpty,
-	Min,
-	Max,
-	MinLength,
-	MaxLength,
-	Matches,
-	IsString
+	IsString, Matches, MaxLength, MinLength
 } from "class-validator";
 
 export class LoginDTO {

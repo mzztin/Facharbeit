@@ -8,12 +8,9 @@ import { MyAdapter } from "./utils";
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
 	app.useGlobalPipes(
-		new ValidationPipe({
-			enableDebugMessages: true
-		})
+		new ValidationPipe()
 	);
 
-	// @ts-ignore
 	app.useWebSocketAdapter(new MyAdapter(app));
 
 	app.enableCors({

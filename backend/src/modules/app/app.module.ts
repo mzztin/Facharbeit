@@ -1,17 +1,17 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { UsersModule } from "../users/users.module";
-import { MessagesModule } from "../messages/messages.module";
-import { RoomsModule } from "../rooms/rooms.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import pgConnect from "connect-pg-simple";
+import session from "express-session";
+import { SessionModule } from "nestjs-session";
+import { Pool } from "pg";
 import { ConnectionOptions } from "typeorm";
 import { ConfigModule } from "../config/config.module";
 import { ConfigService } from "../config/config.service";
-import { SessionModule } from "nestjs-session";
-import { Pool } from "pg";
-import * as pgConnect from "connect-pg-simple";
-import * as session from "express-session";
+import { MessagesModule } from "../messages/messages.module";
+import { RoomsModule } from "../rooms/rooms.module";
+import { UsersModule } from "../users/users.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 
 const PGStore = pgConnect(session);
 
@@ -22,7 +22,7 @@ const PGStore = pgConnect(session);
 			inject: [ConfigService],
 			useFactory: async (config: ConfigService) => {
 				return {
-					type: "postgres" as "postgres",
+					type: "postgres" as const,
 					host: config.get("POSTGRES_HOST"),
 					database: config.get("POSTGRES_DATABASE"),
 					port: Number(config.get("POSTGRES_PORT")),
@@ -37,6 +37,7 @@ const PGStore = pgConnect(session);
 		SessionModule.forRootAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],
+
 			useFactory: async (config: ConfigService) => {
 				const pool = new Pool({
 					database: config.get("POSTGRES_DATABASE"),
@@ -60,9 +61,9 @@ const PGStore = pgConnect(session);
 						store: new PGStore({
 							pool: pool,
 							tableName: "session"
-						})
+						}) as session.Store
 					}
-				};
+				} as any; // fix
 			}
 		}),
 		ConfigModule,

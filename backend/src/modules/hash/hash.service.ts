@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { SHA256, enc } from "crypto-js";
+import { SHA256 } from "crypto-js";
 
 @Injectable()
 export class HashService {

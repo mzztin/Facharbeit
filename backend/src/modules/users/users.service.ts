@@ -1,13 +1,11 @@
 import {
 	ConflictException,
 	Injectable,
-	NotFoundException,
 	UnauthorizedException
 } from "@nestjs/common";
-import UserEntity from "./user.entity";
-import { HashService } from "../hash/hash.service";
 import { Socket } from "socket.io";
-import { Session } from "express-session";
+import { HashService } from "../hash/hash.service";
+import UserEntity from "./user.entity";
 
 @Injectable()
 export class UsersService {
@@ -81,5 +79,7 @@ export class UsersService {
 		if (!cookie) {
 			return null;
 		}
+
+		return "TODO";
 	}
 }

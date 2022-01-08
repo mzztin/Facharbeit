@@ -1,20 +1,15 @@
 import {
 	Body,
 	Controller,
-	Get,
-	Param,
+	Get, HttpCode, NotFoundException, Param,
 	Post,
 	Session,
-	UnauthorizedException,
-	NotFoundException,
-	ValidationPipe,
-	Response,
-	HttpCode
+	UnauthorizedException
 } from "@nestjs/common";
-import { UsersService } from "./users.service";
-import { SignUpDTO } from "./dto/signup.dto";
-import { LoginDTO } from "./dto/login.dto";
 import { MySession } from "../../context";
+import { LoginDTO } from "./dto/login.dto";
+import { SignUpDTO } from "./dto/signup.dto";
+import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
@@ -23,7 +18,7 @@ export class UsersController {
 	@Get()
 	async findAll() {
 		return (await this.usersService.getUsers()).map((user) => {
-			let { password, recievedMessages, sentMessages, ...userData } = user;
+			const { password, recievedMessages, sentMessages, ...userData } = user;
 
 			const result = {
 				...userData,
@@ -36,11 +31,19 @@ export class UsersController {
 		});
 	}
 
-	@Get("/me")
+	@Get("/@me")
 	async me(@Session() session: MySession) {
+		console.log({ session })
+
 		if (session.userId) {
-			const { sentMessages, recievedMessages, ...result } =
-				await this.usersService.getUserById(session.userId);
+
+			const user = await this.usersService.getUserById(session.userId);
+			if (!user) {
+				throw new UnauthorizedException("You are not logged in");
+			}
+			
+			const { sentMessages, recievedMessages, ...result } = user;
+
 			return result;
 		}
 
