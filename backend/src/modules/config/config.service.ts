@@ -8,7 +8,7 @@ interface Config {
 export class ConfigService {
 	private readonly config: Config;
 
-	constructor(filePath: string) {
+	constructor(filePath: string = ".env") {
 		this.config = parse(readFileSync(filePath));
 	}
 

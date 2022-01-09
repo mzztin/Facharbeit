@@ -3,11 +3,11 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { IoAdapter } from "@nestjs/platform-socket.io";
 import pgConnect from "connect-pg-simple";
+import { config } from "dotenv";
 import session from "express-session";
 import sharedsession from "express-socket.io-session";
-import { Pool } from "pg";
 import { ConfigService } from "./modules/config/config.service";
-
+config()
 const PGStore = pgConnect(session);
 
 /**
@@ -25,12 +25,7 @@ export class MyAdapter extends IoAdapter {
 		const server = super.createIOServer(port, options);
 		const config = this.app.get(ConfigService);
 
-		const pool = new Pool({
-			database: config.get("POSTGRES_DATABASE"),
-			port: Number(config.get("POSTGRES_PORT")),
-			user: config.get("POSTGRES_USERNAME"),
-			password: config.get("POSTGRES_PASSWORD")
-		});
+		const conString = `postgres://${process.env["POSTGRES_USERNAME"]}:${process.env["POSTGRES_PASSWORD"]}@${process.env["POSTGRES_HOST"]}:${process.env["POSTGRES_PORT"]}/${process.env["POSTGRES_DATABASE"]}`
 
 		const mySession = session({
 				name: "session",
@@ -44,8 +39,7 @@ export class MyAdapter extends IoAdapter {
 					sameSite: "lax"
 				},
 				store: new PGStore({
-					pool: pool,
-					tableName: "session"
+					conString
 				})
 			})
 
