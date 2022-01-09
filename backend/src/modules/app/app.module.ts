@@ -1,9 +1,5 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import pgConnect from "connect-pg-simple";
-import session from "express-session";
-import { SessionModule } from "nestjs-session";
-import { Pool } from "pg";
 import { ConnectionOptions } from "typeorm";
 import { ConfigModule } from "../config/config.module";
 import { ConfigService } from "../config/config.service";
@@ -12,8 +8,6 @@ import { RoomsModule } from "../rooms/rooms.module";
 import { UsersModule } from "../users/users.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-
-const PGStore = pgConnect(session);
 
 @Module({
 	imports: [
@@ -32,38 +26,6 @@ const PGStore = pgConnect(session);
 					synchronize: config.get("dev") ? true : false,
 					keepConnectionAlive: true
 				} as ConnectionOptions;
-			}
-		}),
-		SessionModule.forRootAsync({
-			imports: [ConfigModule],
-			inject: [ConfigService],
-
-			useFactory: async (config: ConfigService) => {
-				const pool = new Pool({
-					database: config.get("POSTGRES_DATABASE"),
-					port: Number(config.get("POSTGRES_PORT")),
-					user: config.get("POSTGRES_USERNAME"),
-					password: config.get("POSTGRES_PASSWORD")
-				});
-
-				return {
-					session: {
-						name: "session",
-						secret: config.get("SESSION_SECRET"),
-						resave: false,
-						saveUninitialized: true,
-						cookie: {
-							httpOnly: false,
-							secure: false,
-							maxAge: 1000 * 60 * 60 * 24 * 365,
-							sameSite: "lax"
-						},
-						store: new PGStore({
-							pool: pool,
-							tableName: "session"
-						}) as session.Store
-					}
-				} as any; // fix
 			}
 		}),
 		ConfigModule,
