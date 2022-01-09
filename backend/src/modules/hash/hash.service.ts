@@ -5,9 +5,8 @@ import { SHA256 } from "crypto-js";
 export class HashService {
 	hashPassword(password: string): string {
 		return (
-			SHA256("53d0af5d1ccc03eab9088c234bb46a46deaa9e17682416d459beb49fc78802a1" + password) +
-			""
-		);
+			SHA256("53d0af5d1ccc03eab9088c234bb46a46deaa9e17682416d459beb49fc78802a1" + password + "string") + ""
+		).toString();
 	}
 
 	matches(hash: string, haystack: string): boolean {
