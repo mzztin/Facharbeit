@@ -1,20 +1,20 @@
+
 /**
  *
  * Socket und Session verbindung https://github.com/nestjs/nest/issues/445
  *
  */
-
-import { BadRequestException, Logger, Session } from "@nestjs/common";
+import { Logger, Session } from "@nestjs/common";
 import {
 	MessageBody, OnGatewayConnection,
 	OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway,
 	WebSocketServer
 } from "@nestjs/websockets";
+import "reflect-metadata";
 import { Server, Socket } from "socket.io";
 import { MySession } from "../../context";
 import { RoomsService } from "../rooms/rooms.service";
 import MessageDTO from "./dto/message.dto";
-import { EnterRoomDTO } from "./dto/room.dto";
 
 @WebSocketGateway(4001, {
 	cors: {
@@ -30,19 +30,20 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 	public constructor(private roomsService: RoomsService) {}
 
 
+	private currentRooms: {
+		[roomCode: string]: Socket[]
+	} = {};
+
+
 	afterInit(_server: any) {
 		this.logger.log("Message Gateaway has been initalized");
 	}
 
 	handleConnection(client: Socket, ..._args: any[]) {
-
-		console.debug({ _args })
-
 		this.logger.log(`Client ${client.id} connected`)
+		return "Welcome!"
 	}
-
 	
-
 	handleDisconnect(client: Socket) {
 		this.logger.log(`Client ${client.id} disconnected`)
 	}
@@ -58,18 +59,27 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 	@SubscribeMessage("joinRoom")
 	enterRoom(
 		client: Socket,
-		@MessageBody() { code }: EnterRoomDTO,
+		@MessageBody() code: string,
 		@Session() session: MySession
 	) {
-		console.log({ session });
+		console.log({ session, code });
 
-		if (!this.roomsService.isValidCode(code)) {
-			throw new BadRequestException("Room with given code not found");
+
+		if (!code || !this.roomsService.isValidCode(code)) {
+			return "Room with given code not found";
 		}
 
-		client.join(code);
+		if (!this.currentRooms[code]) {
+			this.currentRooms[code] = [];
+		}
 
-		this.server.emit("userJoinedRoom", {});
+		this.currentRooms[code].push(client);
+
+		this.server.emit("joinedRoom", {
+			username: "TODO"
+		});
+
+		return "yo";
 	}
 
 	@SubscribeMessage("leaveRoom")

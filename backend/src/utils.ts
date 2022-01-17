@@ -1,13 +1,10 @@
 // https://github.com/nestjs/nest/issues/445
 
+import { ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { IoAdapter } from "@nestjs/platform-socket.io";
 import pgConnect from "connect-pg-simple";
-import { config } from "dotenv";
 import session from "express-session";
-import sharedsession from "express-socket.io-session";
-import { ConfigService } from "./modules/config/config.service";
-config()
 const PGStore = pgConnect(session);
 
 /**
@@ -22,14 +19,13 @@ export class MyAdapter extends IoAdapter {
 	}
 
 	createIOServer(port: number, options?: any) {
-		const server = super.createIOServer(port, options);
-		const config = this.app.get(ConfigService);
-
+		const server = super.create(port, options);
+		
 		const conString = `postgres://${process.env["POSTGRES_USERNAME"]}:${process.env["POSTGRES_PASSWORD"]}@${process.env["POSTGRES_HOST"]}:${process.env["POSTGRES_PORT"]}/${process.env["POSTGRES_DATABASE"]}`
 
 		const mySession = session({
 				name: "session",
-				secret: config.get("SESSION_SECRET") ?? "TOKEN NOT GIVEN",
+				secret: process.env["SESSION_SECRET"] ?? "TOKEN NOT GIVEN",
 				resave: false,
 				saveUninitialized: true,
 				cookie: {
@@ -45,9 +41,13 @@ export class MyAdapter extends IoAdapter {
 
 		this.app.use(mySession);
 
-		server.use(sharedsession(mySession, {
-			autoSave: true
-		}));
+		// Sonst käm ein Felher??
+
+		this.app.useGlobalPipes(
+			new ValidationPipe()
+		);
+
+		// server.use(sharedsession(mySession, { autoSave: true }));
 		
 		return server;
 	}

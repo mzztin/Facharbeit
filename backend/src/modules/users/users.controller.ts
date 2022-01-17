@@ -7,13 +7,14 @@ import {
 	UnauthorizedException
 } from "@nestjs/common";
 import { MySession } from "../../context";
+import { HashService } from "../hash/hash.service";
 import { LoginDTO } from "./dto/login.dto";
 import { SignUpDTO } from "./dto/signup.dto";
 import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
-	constructor(private usersService: UsersService) {}
+	constructor(private usersService: UsersService, private hashService: HashService) {}
 
 	@Get()
 	async findAll() {
@@ -42,8 +43,9 @@ export class UsersController {
 				throw new UnauthorizedException("You are not logged in");
 			}
 			
-			const { sentMessages, recievedMessages, ...result } = user;
+			const { sentMessages, recievedMessages, ...result }: any = user;
 
+			result["sessionId"] = this.hashService.encryptSessionId(session.id);
 			return result;
 		}
 
