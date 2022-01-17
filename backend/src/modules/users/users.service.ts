@@ -1,8 +1,4 @@
-import {
-	ConflictException,
-	Injectable,
-	UnauthorizedException
-} from "@nestjs/common";
+import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { HashService } from "../hash/hash.service";
 import UserEntity from "./user.entity";

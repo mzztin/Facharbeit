@@ -7,7 +7,11 @@ const SESSION_ID_KEY = "Date.now()";
 export class HashService {
 	hashPassword(password: string): string {
 		return (
-			SHA256("53d0af5d1ccc03eab9088c234bb46a46deaa9e17682416d459beb49fc78802a1" + password + "string") + ""
+			SHA256(
+				"53d0af5d1ccc03eab9088c234bb46a46deaa9e17682416d459beb49fc78802a1" +
+					password +
+					"string"
+			) + ""
 		).toString();
 	}
 

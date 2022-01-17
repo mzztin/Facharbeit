@@ -5,7 +5,6 @@ import "reflect-metadata";
 import { AppModule } from "./modules/app/app.module";
 
 (async () => {
-
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
 	app.useWebSocketAdapter(new IoAdapter(app));

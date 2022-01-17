@@ -1,7 +1,10 @@
 import {
 	Body,
 	Controller,
-	Get, HttpCode, NotFoundException, Param,
+	Get,
+	HttpCode,
+	NotFoundException,
+	Param,
 	Post,
 	Session,
 	UnauthorizedException
@@ -34,15 +37,14 @@ export class UsersController {
 
 	@Get("/@me")
 	async me(@Session() session: MySession) {
-		console.log({ session })
+		console.log({ session });
 
 		if (session.userId) {
-
 			const user = await this.usersService.getUserById(session.userId);
 			if (!user) {
 				throw new UnauthorizedException("You are not logged in");
 			}
-			
+
 			const { sentMessages, recievedMessages, ...result }: any = user;
 
 			result["sessionId"] = this.hashService.encryptSessionId(session.id);

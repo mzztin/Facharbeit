@@ -5,9 +5,12 @@ import { ConfigService } from "../config/config.service";
 
 @Module({
 	imports: [ConfigModule],
-	providers: [HashService, {
-		provide: ConfigService,
-		useValue: new ConfigService("misc.env")
-	}],
+	providers: [
+		HashService,
+		{
+			provide: ConfigService,
+			useValue: new ConfigService("misc.env")
+		}
+	]
 })
 export class HashModule {}

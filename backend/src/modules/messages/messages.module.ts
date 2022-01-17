@@ -4,7 +4,7 @@ import { RoomsService } from "../rooms/rooms.service";
 import { MessagesGateway } from "./messages.gateway";
 
 @Module({
-    imports: [RoomsModule],
-    providers: [MessagesGateway, RoomsService],
+	imports: [RoomsModule],
+	providers: [MessagesGateway, RoomsService]
 })
 export class MessagesModule {}

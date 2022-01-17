@@ -1,6 +1,10 @@
 import {
 	BaseEntity,
-	Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn
+	Column,
+	CreateDateColumn,
+	Entity,
+	ManyToOne,
+	PrimaryGeneratedColumn
 } from "typeorm";
 import RoomMessageEntity from "./room.message.entity";
 
