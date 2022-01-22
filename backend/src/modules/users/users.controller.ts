@@ -6,6 +6,7 @@ import {
 	NotFoundException,
 	Param,
 	Post,
+	Req,
 	Session,
 	UnauthorizedException
 } from "@nestjs/common";
@@ -36,9 +37,9 @@ export class UsersController {
 	}
 
 	@Get("/@me")
-	async me(@Session() session: MySession) {
-		console.log({ session });
-
+	async me(@Req() req: any, @Session() session: MySession) {
+		console.log("req", req);
+		
 		if (session.userId) {
 			const user = await this.usersService.getUserById(session.userId);
 			if (!user) {
@@ -82,24 +83,39 @@ export class UsersController {
 	}
 
 	@Post("/signup")
-	@HttpCode(201)
 	async signup(@Body() { username, password }: SignUpDTO, @Session() session: MySession) {
-		const user = await this.usersService.createUser(username, password);
+		try {
+			const user = await this.usersService.createUser(username, password);	
+			console.log("user", user)
 
-		session.userId = user.id;
+			session.regenerate((err) => { if (err) console.log(err) })
+			session.userId = user.id;
+			session.save();
 
-		return true;
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	@Post("/logout")
+	async logout(@Session() session: MySession) {
+		if (session.userId !== undefined) {
+			session.destroy((err) => { if (err) console.error(err) });
+			return true;
+		}
+
+		return false;
 	}
 
 	@Post("/login")
 	@HttpCode(201)
 	async login(@Body() body: LoginDTO, @Session() session: MySession) {
-		console.log("body", body);
-
 		const user = await this.usersService.validateLogin(body.username, body.password);
 
 		session.userId = user.id;
-
+		session.save();
+		
 		return true;
 	}
 }

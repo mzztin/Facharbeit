@@ -1,44 +1,63 @@
 <script lang="ts" context="module">
+	import Header from "$lib/components/Header.svelte";
+	import store from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
+	import axios from "axios";
+	import { Content } from "carbon-components-svelte";
+	import "carbon-components-svelte/css/g90.css";
 
-	export const load: Load = async ({ fetch }) => {
-		const res = await fetch("http://localhost:4000/users/me", {
-			method: "GET"
-		});
 
-		console.log({ res });
+	axios.defaults.withCredentials = true;
 
-		if (res.ok) {
-			const json = await res.json();
+	export const load: Load = async ({ fetch }) => {	
+		try {
+			const res = await axios.get("http://localhost:4000/users/@me", {
+				method: "GET"
+			});
+
+			const data = res.data;
+
+			if (res.status == 401) {
+				return {
+					props: {
+						isLoggedIn: false
+					}
+				}
+			}
 
 			return {
 				props: {
-					username: json,
-					isLoggedIn: true
+					isLoggedIn: true,
+					username: data.username,
+					sessionId: data.sessionId
 				}
 			};
+		} catch (e) {
+			return {
+					props: {
+						isLoggedIn: false,
+						username: undefined,
+						sessionId: undefined
+					}
+			}
 		}
 
-		return {
-			props: {
-				isLoggedIn: false
-			}
-		};
 	};
 </script>
 
-<script lang="ts">
-	import Header from "$lib/components/Header.svelte";
+<script lang="ts">	
+	
+	export let username: string | undefined;
 
-	import { Content } from "carbon-components-svelte";
-
-	import "carbon-components-svelte/css/g90.css";
-
-	export let username;
+	export let sessionId: string | undefined;
 
 	export let isLoggedIn: boolean;
 
-	console.log("layout", { username, isLoggedIn });
+	if (username) store.username.set(username);
+	if (sessionId) store.sessionId.set(sessionId);
+	if (isLoggedIn) store.loggedIn.set(isLoggedIn);
+
+	console.log("layout", { username, sessionId, isLoggedIn });
 </script>
 
 <Header {isLoggedIn} {username} />

@@ -1,11 +1,7 @@
 <script lang="ts">
 	import {
-		Header,
-		HeaderUtilities,
-		HeaderAction,
-		HeaderPanelLinks,
-		HeaderPanelDivider,
-		HeaderPanelLink
+	Header,HeaderAction,HeaderPanelDivider,
+	HeaderPanelLink,HeaderPanelLinks,HeaderUtilities
 	} from "carbon-components-svelte";
 
 	let isOpen = false;
@@ -22,12 +18,12 @@
 			<HeaderPanelLinks>
 				{#if isLoggedIn}
 					<HeaderPanelDivider>My account</HeaderPanelDivider>
-					<HeaderPanelLink>My account</HeaderPanelLink>
-					<HeaderPanelLink>Sign-Out</HeaderPanelLink>
+					<HeaderPanelLink href="/users/@me">My account</HeaderPanelLink>
+					<HeaderPanelLink href="/logout">Logout</HeaderPanelLink>
 				{:else}
 					<HeaderPanelDivider>My account</HeaderPanelDivider>
-					<HeaderPanelLink>Login</HeaderPanelLink>
-					<HeaderPanelLink>Sign-Up</HeaderPanelLink>
+					<HeaderPanelLink href="/login">Login</HeaderPanelLink>
+					<HeaderPanelLink href="/register">Sign-Up</HeaderPanelLink>
 				{/if}
 			</HeaderPanelLinks>
 		</HeaderAction>

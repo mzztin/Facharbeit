@@ -7,8 +7,10 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [preprocess(), optimizeImports()],
 	kit: {
-		ssr: true,
-		vite: {},
+		ssr: false,
+		vite: {
+			
+		},
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: "#svelte"
 	}

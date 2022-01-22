@@ -1,12 +1,17 @@
 <script lang="ts">
-	import { TextInput, PasswordInput, Button } from "carbon-components-svelte";
+	import { Getter } from "$lib/utils/store";
 	import axios from "axios";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+	import { re } from "svelte/internal";
 
 	let username: string;
 	let password: string;
 
 	let success = null;
 	let error = null;
+
+	const loggedIn = Getter.getLoggedIn()
+	const un = Getter.getUsername()
 
 	async function handleLogin() {
 		if (!username || !password) {
@@ -21,8 +26,8 @@
 			});
 
 			console.log("status", res.status);
+			console.log("data", await res.data);
 
-			console.log("data", JSON.stringify(res));
 			if (res.status === 201) {
 				success = true;
 				return;
@@ -41,11 +46,17 @@
 	}
 </script>
 
-<h2>Login</h2>
+<h1>Login</h1>
+<p>Dev: {loggedIn}, Username: {un}</p>
+
 <br />
 
 {#if success}
-	<h1>Logged in</h1>
+	<h2>Logged in</h2>
+
+	<a href="/" >
+        <h4>Return to homepage</h4>
+    </a>
 {:else}
 	<TextInput
 		bind:value={username}

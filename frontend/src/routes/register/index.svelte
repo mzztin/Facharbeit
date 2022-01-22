@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { TextInput, PasswordInput, Button } from "carbon-components-svelte";
 	import axios from "axios";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+	import { } from "svelte";
 
 	let username: string;
 	let password: string;
 	let data: any;
+
+	let signedUp = false;
 
 	const login = async () => {
 		if (!username || !password) {
@@ -14,17 +17,20 @@
 			return;
 		}
 
-		const res = await axios.post("http://localhost:4000/users/signup", {
-			username,
-			password
-		});
+		try {
+			const res = await axios.post("http://localhost:4000/users/signup", {
+				username,
+				password
+			});
 
-		data = await res.data;
-
-		alert(data);
+			if (await res.data) {
+				signedUp = true;
+			}
+		} catch (e) {
+			console.debug(e)
+		}
+		
 	};
-
-	$: data;
 </script>
 
 <p>{$data}</p>
@@ -32,15 +38,20 @@
 <h2>Register</h2>
 <br />
 
-<TextInput
-	bind:value={username}
-	labelText="Username"
-	placeholder="Enter username"
-	min={2}
-	max={16}
-/>
-<PasswordInput bind:value={password} labelText="Password" placeholder="Enter password" />
+{#if signedUp}
+	<h4>Signed In</h4>
+{:else}
+	<TextInput
+		bind:value={username}
+		labelText="Username"
+		placeholder="Enter username"
+		min={2}
+		max={16}
+	/>
+	<PasswordInput bind:value={password} labelText="Password" placeholder="Enter password" />
 
-<br />
+	<br />
 
-<Button class="space-y-3" on:click={login} kind="tertiary">Register</Button>
+	<Button class="space-y-3" on:click={login} kind="tertiary">Register</Button>
+{/if}
+
