@@ -5,20 +5,19 @@ import {
 	HttpCode,
 	NotFoundException,
 	Param,
-	Post,
-	Req,
-	Session,
+	Post, Session,
 	UnauthorizedException
 } from "@nestjs/common";
 import { MySession } from "../../context";
 import { HashService } from "../hash/hash.service";
+import { StoreService } from "../store/store.service";
 import { LoginDTO } from "./dto/login.dto";
 import { SignUpDTO } from "./dto/signup.dto";
 import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
-	constructor(private usersService: UsersService, private hashService: HashService) {}
+	constructor(private usersService: UsersService, private hashService: HashService, private storeService: StoreService) {}
 
 	@Get()
 	async findAll() {
@@ -37,18 +36,19 @@ export class UsersController {
 	}
 
 	@Get("/@me")
-	async me(@Req() req: any, @Session() session: MySession) {
-		console.log("req", req);
-		
+	async me(@Session() session: MySession) {
 		if (session.userId) {
 			const user = await this.usersService.getUserById(session.userId);
 			if (!user) {
 				throw new UnauthorizedException("You are not logged in");
 			}
 
+			this.storeService.addSession(session.id, user.id);
+
 			const { sentMessages, recievedMessages, ...result }: any = user;
 
 			result["sessionId"] = this.hashService.encryptSessionId(session.id);
+			
 			return result;
 		}
 
@@ -92,6 +92,8 @@ export class UsersController {
 			session.userId = user.id;
 			session.save();
 
+			this.storeService.addSession(session.id, user.id);
+
 			return true;
 		} catch (e) {
 			return false;
@@ -101,6 +103,8 @@ export class UsersController {
 	@Post("/logout")
 	async logout(@Session() session: MySession) {
 		if (session.userId !== undefined) {
+			this.storeService.removeSession(session.id);
+			
 			session.destroy((err) => { if (err) console.error(err) });
 			return true;
 		}
@@ -112,6 +116,8 @@ export class UsersController {
 	@HttpCode(201)
 	async login(@Body() body: LoginDTO, @Session() session: MySession) {
 		const user = await this.usersService.validateLogin(body.username, body.password);
+
+		this.storeService.addSession(session.id, user.id);
 
 		session.userId = user.id;
 		session.save();

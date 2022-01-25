@@ -13,6 +13,9 @@ export default class RoomEntity extends BaseEntity {
 	@PrimaryGeneratedColumn("increment")
 	id: number;
 
+	@Column("varchar")
+	name: string;
+
 	@Column("int")
 	ownerId: number;
 

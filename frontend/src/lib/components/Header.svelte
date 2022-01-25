@@ -1,15 +1,11 @@
 <script lang="ts">
-	import {
-	Header,HeaderAction,HeaderPanelDivider,
-	HeaderPanelLink,HeaderPanelLinks,HeaderUtilities
-	} from "carbon-components-svelte";
+	import { Getter } from "$lib/utils/store";
+	import { Header,HeaderAction,HeaderPanelDivider,HeaderPanelLink,HeaderPanelLinks,HeaderUtilities } from "carbon-components-svelte";
 
 	let isOpen = false;
 
-	export let username = undefined;
-	export let isLoggedIn: boolean = false;
-
-	console.log(username);
+	let username = Getter.getUsername();
+	let isLoggedIn = Getter.getLoggedIn() ?? false;
 </script>
 
 <Header company="Chat" platformName="Application">
@@ -17,7 +13,7 @@
 		<HeaderAction bind:isOpen>
 			<HeaderPanelLinks>
 				{#if isLoggedIn}
-					<HeaderPanelDivider>My account</HeaderPanelDivider>
+					<HeaderPanelDivider>My account - {username}</HeaderPanelDivider>
 					<HeaderPanelLink href="/users/@me">My account</HeaderPanelLink>
 					<HeaderPanelLink href="/logout">Logout</HeaderPanelLink>
 				{:else}

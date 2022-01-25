@@ -6,10 +6,9 @@
 	import { Content } from "carbon-components-svelte";
 	import "carbon-components-svelte/css/g90.css";
 
-
 	axios.defaults.withCredentials = true;
 
-	export const load: Load = async ({ fetch }) => {	
+	export const load: Load = async () => {	
 		try {
 			const res = await axios.get("http://localhost:4000/users/@me", {
 				method: "GET"
@@ -56,11 +55,9 @@
 	if (username) store.username.set(username);
 	if (sessionId) store.sessionId.set(sessionId);
 	if (isLoggedIn) store.loggedIn.set(isLoggedIn);
-
-	console.log("layout", { username, sessionId, isLoggedIn });
 </script>
 
-<Header {isLoggedIn} {username} />
+<Header />
 
 <Content>
 	<slot />

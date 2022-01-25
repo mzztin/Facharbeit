@@ -1,4 +1,5 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { AuthMiddleware } from "../auth/auth.middleware";
 import { RoomController } from "./room.controller";
 import { RoomsService } from "./rooms.service";
 
@@ -6,4 +7,9 @@ import { RoomsService } from "./rooms.service";
 	controllers: [RoomController],
 	providers: [RoomsService]
 })
-export class RoomsModule {}
+export class RoomsModule implements NestModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(AuthMiddleware).forRoutes("/", "/:id/messages")
+	}
+	
+}
