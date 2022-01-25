@@ -5,7 +5,6 @@
  */
 import { Logger } from "@nestjs/common";
 import {
-	MessageBody,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 	OnGatewayInit,
@@ -18,7 +17,6 @@ import { Server, Socket } from "socket.io";
 import { HashService } from "../hash/hash.service";
 import { RoomsService } from "../rooms/rooms.service";
 import { StoreService } from "../store/store.service";
-import MessageDTO from "./dto/message.dto";
 
 @WebSocketGateway(4001, {
 	cors: {
@@ -32,18 +30,14 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 	private logger = new Logger("MessagesGateaway");
 
 	public constructor(private roomsService: RoomsService, private hashService: HashService, private storeService: StoreService) {}
-
-	private currentRooms: {
-		[roomCode: string]: Socket[];
-	} = {};
-
+	
 	afterInit(_server: any) {
 		this.logger.log("Message Gateaway has been initalized");
 	}
 
 	handleConnection(client: Socket, _: any[]) {
 		this.logger.log(`Client ${client.id} connected`);
-		const roomId = client.handshake.query["roomId"];
+		const roomId = client.handshake.query["roomId"] as string;
 		const encryptedSessionId = client.handshake.query["sessionId"];
 
 		for (const stuff in [roomId, encryptedSessionId]) {
@@ -52,13 +46,23 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 				return;
 			}
 		}
+		
+		if (!this.roomsService.isValidCode(roomId ?? "bozo")) {
+			client.disconnect(true);
+		}
 
 		const sessionId = this.hashService.decryptSessionId(encryptedSessionId as string);
 		
-		this.storeService.dump()
 		const userId = this.storeService.getUserID(sessionId);
+		
+		client.data.userId = userId as number;
+		client.data.roomId = roomId as string;
+		client.join(roomId as string);
 
-		console.log({ userId, sessionId })
+		this.server.to(roomId).emit("userJoined", {
+			userId,
+			time: Date.now()
+		})
 	}
 
 	handleDisconnect(client: Socket) {
@@ -66,31 +70,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 	}
 
 	@SubscribeMessage("sendMessage")
-	sendMessage(client: Socket, @MessageBody() data: MessageDTO) {
-		console.log({ client });
-		// check here
+	sendMessage(client: Socket, payload: any) {
+		payload = String(payload);
 
-		this.server.emit("recieveMessage", data);
-	}
-
-	@SubscribeMessage("joinRoom")
-	enterRoom(client: Socket, @MessageBody() code: string) {
-
-		if (!code || !this.roomsService.isValidCode(code)) {
-			return "Room with given code not found";
-		}
-
-		if (!this.currentRooms[code]) {
-			this.currentRooms[code] = [];
-		}
-
-		this.currentRooms[code].push(client);
-
-		this.server.emit("joinedRoom", {
-			username: "TODO"
+		this.server.to(client.data.roomId).emit("recieveMessage", {
+			message: payload
 		});
-
-		return "yo";
 	}
 
 	@SubscribeMessage("leaveRoom")

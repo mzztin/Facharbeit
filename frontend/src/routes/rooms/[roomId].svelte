@@ -2,9 +2,9 @@
 	import Message from "$lib/components/Message.svelte";
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
-import axios from "axios";
-	import { Column,Row } from "carbon-components-svelte";
-	import { io } from "socket.io-client";
+	import axios from "axios";
+	import { Button,Column,Grid,Row,TextInput } from "carbon-components-svelte";
+	import { io,Socket } from "socket.io-client";
 	import { onMount } from "svelte";
 
 	export const load: Load = ({ page }) => {
@@ -18,49 +18,93 @@ import axios from "axios";
 </script>
 
 <script lang="ts">
+
 	export let roomId: string = "";
 	const socketURL = "ws://localhost:4001"
 	
 	console.log(roomId)
 
 	const fetchMessages = async () => {
-		axios.get("http://localhost:4000/rooms")
+		const messages = axios.get(`http://localhost:4000/rooms/${roomId}/messages`)
+	
 	}
 
-	onMount(async () => {
-		console.log("socket start")
+	let socket: Socket;
 
-		const socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomId}`, {
-		});
+	onMount(async () => {
+		socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomId}`);
 
 		socket.emit("joinRoom", roomId)
 		
-		socket.on("error", async (payload) => {
+		socket.on("userJoined", async (payload) => {
 			console.log(payload)
 		})
 
-		
+		socket.on("recieveMessage", async (payload) => {
+			console.log(payload)
+		})
 	});
+
+	let value: string = "";
+
+	const sendMessage = () => {
+		socket.emit("sendMessage", value);
+		value = "";
+	}
 
 </script>
 
-<Row>
-	<Column>
-		<h1>Room - {roomId}</h1>
-	</Column>
+<Grid>
+	<Row>
+		<h1>Chatroom - {roomId}</h1>
+	</Row>	
 
-	<Column>
-		<Message
-			username="Martin"
-			content="Sup"
-			avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
-			createdAt={new Date(99676556436)}
-		/>
-		<Message
-			username="Martin"
-			content="Hru"
-			avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
-			createdAt={new Date(696765556436)}
-		/>
-	</Column>
-</Row>
+	<Row>
+		Owner: {roomId}
+	</Row>
+
+	<Row>
+		<Column>
+			<Message
+				username="Martin"
+				content="Hru"
+				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
+				createdAt={new Date(696765556436)}
+			/>
+		</Column>
+	</Row>
+
+	<Row>
+		<Column>
+			<Message
+				username="Martin"
+				content="Hru 2"  
+				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
+				createdAt={new Date(696765556436)}
+			/>
+		</Column>
+	</Row>
+
+	<Row>
+		<Column>
+			<Message
+				username="Martin"
+				content="Hru 3"
+				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
+				createdAt={new Date(696765556436)}
+			/>
+		</Column>
+	</Row>
+
+	<Row>
+		
+		<Column>
+			<TextInput placeholder="Enter message" bind:value />
+		</Column>
+
+		<Column>
+			<Button kind="ghost" on:click={sendMessage}>Send!</Button>
+		</Column>
+		
+	</Row>
+</Grid>

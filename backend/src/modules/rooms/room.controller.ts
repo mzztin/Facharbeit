@@ -20,7 +20,12 @@ export class RoomController {
 
 	@Get(":id/messages")
 	async getMessages(@Param(":id") id: number) {
-		const room = await RoomEntity.findOne(id);
+		const room = await RoomEntity.findOne({
+			where: {
+				code: id
+			}
+		});
+		
 		if (!room) {
 			throw new BadRequestException("Room with id not found");
 		}
