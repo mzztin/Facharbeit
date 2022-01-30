@@ -29,8 +29,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
 	private logger = new Logger("MessagesGateaway");
 
-	public constructor(private roomsService: RoomsService, private hashService: HashService, private storeService: StoreService) {}
-	
+	public constructor(
+		private roomsService: RoomsService,
+		private hashService: HashService,
+		private storeService: StoreService
+	) {}
+
 	afterInit(_server: any) {
 		this.logger.log("Message Gateaway has been initalized");
 	}
@@ -46,15 +50,15 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 				return;
 			}
 		}
-		
+
 		if (!this.roomsService.isValidCode(roomId ?? "bozo")) {
 			client.disconnect(true);
 		}
 
 		const sessionId = this.hashService.decryptSessionId(encryptedSessionId as string);
-		
+
 		const userId = this.storeService.getUserID(sessionId);
-		
+
 		client.data.userId = userId as number;
 		client.data.roomId = roomId as string;
 		client.join(roomId as string);
@@ -62,7 +66,7 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 		this.server.to(roomId).emit("userJoined", {
 			userId,
 			time: Date.now()
-		})
+		});
 	}
 
 	handleDisconnect(client: Socket) {

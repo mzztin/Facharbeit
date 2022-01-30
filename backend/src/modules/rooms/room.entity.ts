@@ -3,7 +3,8 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
-	ManyToMany, PrimaryGeneratedColumn
+	ManyToMany,
+	PrimaryGeneratedColumn
 } from "typeorm";
 import RoomMessageEntity from "./room.message.entity";
 

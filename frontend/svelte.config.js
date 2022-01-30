@@ -8,9 +8,7 @@ const config = {
 	preprocess: [preprocess(), optimizeImports()],
 	kit: {
 		ssr: false,
-		vite: {
-			
-		},
+		vite: {},
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: "#svelte"
 	}

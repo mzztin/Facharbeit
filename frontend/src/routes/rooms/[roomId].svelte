@@ -2,8 +2,8 @@
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
 	import axios from "axios";
-	import { Column,Grid,Row } from "carbon-components-svelte";
-	import { io,Socket } from "socket.io-client";
+	import { Column, Grid, Row } from "carbon-components-svelte";
+	import { io, Socket } from "socket.io-client";
 	import { onMount } from "svelte";
 
 	export const load: Load = async ({ page }) => {
@@ -13,16 +13,16 @@
 		try {
 			roomInfo = await axios.get(`/rooms/${roomId}`);
 
-			console.log({ roomInfo, data: roomInfo.data })
+			console.log({ roomInfo, data: roomInfo.data });
 		} catch (e) {
 			return {
 				props: {
 					isValid: false
 				}
-			}
+			};
 		}
 
-		console.log({ roomInfo: roomInfo.data })
+		console.log({ roomInfo: roomInfo.data });
 
 		if (roomInfo.data == false) {
 			return {
@@ -30,7 +30,7 @@
 					roomId,
 					isValid: false
 				}
-			}
+			};
 		}
 
 		return {
@@ -41,63 +41,59 @@
 			}
 		};
 	};
-
 </script>
 
 <script lang="ts">
-
-
 	export let roomId: string = "";
 
 	export let roomInfo: {
-		id: number,
-		name: string,
-		ownerId: number,
-		createdAt: Date,
-		code: string
+		id: number;
+		name: string;
+		ownerId: number;
+		createdAt: Date;
+		code: string;
 	} = undefined;
-	
+
 	export let isValid: boolean = undefined;
 
 	let ownerUsername: string;
 
 	let messages: Array<{
-		content: string,
-		[value: string]: any
+		content: string;
+		[value: string]: any;
 	}> = [];
 
-	const socketURL = 	`ws://${"192.168.1.53"}:4001`;
-	
+	const socketURL = `ws://${"192.168.1.53"}:4001`;
+
 	const fetchMessages = async () => {
-		console.log({ roomId })
+		console.log({ roomId });
 		return (await axios.get(`/rooms/${roomId}/messages`)).data as Array<{
-			content: string,
-			[value: string]: any
+			content: string;
+			[value: string]: any;
 		}>;
-	}
+	};
 
 	let socket: Socket;
 
 	if (isValid) {
 		onMount(async () => {
-			const owner = await axios.get(`/users/${roomInfo.ownerId}}`)
+			const owner = await axios.get(`/users/${roomInfo.ownerId}}`);
 			ownerUsername = owner.data.username;
 
 			socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomId}`);
 
-			socket.emit("joinRoom", roomId)
-			
+			socket.emit("joinRoom", roomId);
+
 			socket.on("userJoined", async (payload) => {
-				console.log(payload)
-			})
+				console.log(payload);
+			});
 
 			socket.on("recieveMessage", async (payload) => {
-				console.log(payload)
+				console.log(payload);
 			});
-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
 			// messages = await fetchMessages();
 		});
-
 	}
 
 	let value: string = "";
@@ -105,10 +101,10 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 	const sendMessage = () => {
 		messages.push({
 			content: "hello"
-		})
-	}
+		});
+	};
 
-	setInterval(sendMessage, 2000)
+	setInterval(sendMessage, 2000);
 </script>
 
 {#if isValid}
@@ -117,7 +113,7 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 			<Column>
 				<h1>Chatroom - {roomInfo.name}</h1>
 			</Column>
-			
+
 			<Column>
 				<h3>ID: {roomInfo.code}</h3>
 			</Column>
@@ -125,7 +121,7 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 			<Column>
 				<h3>Created at {roomInfo.createdAt}</h3>
 			</Column>
-		</Row>	
+		</Row>
 
 		<Row>
 			<a href={`/users/${ownerUsername}`}>
@@ -138,8 +134,6 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 			<code>{JSON.stringify(message)}</code>
 		{/each}
 	</Grid>
-
-
 {:else}
 	<h3>Room with code <b>{roomId}</b> not found!</h3>
 	<br />
@@ -158,8 +152,8 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
 <style>
 	a {
-     text-decoration: none;
-     color: inherit;
+		text-decoration: none;
+		color: inherit;
 	}
 
 	a:hover {

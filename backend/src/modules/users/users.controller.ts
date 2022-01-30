@@ -5,7 +5,8 @@ import {
 	HttpCode,
 	NotFoundException,
 	Param,
-	Post, Session,
+	Post,
+	Session,
 	UnauthorizedException
 } from "@nestjs/common";
 import { MySession } from "../../context";
@@ -17,7 +18,11 @@ import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
-	constructor(private usersService: UsersService, private hashService: HashService, private storeService: StoreService) {}
+	constructor(
+		private usersService: UsersService,
+		private hashService: HashService,
+		private storeService: StoreService
+	) {}
 
 	@Get()
 	async findAll() {
@@ -48,7 +53,7 @@ export class UsersController {
 			const { sentMessages, recievedMessages, password, ...result }: any = user;
 
 			result["sessionId"] = this.hashService.encryptSessionId(session.id);
-			
+
 			return result;
 		}
 
@@ -85,10 +90,12 @@ export class UsersController {
 	@Post("/signup")
 	async signup(@Body() { username, password }: SignUpDTO, @Session() session: MySession) {
 		try {
-			const user = await this.usersService.createUser(username, password);	
-			console.log("user", user)
+			const user = await this.usersService.createUser(username, password);
+			console.log("user", user);
 
-			session.regenerate((err) => { if (err) console.log(err) })
+			session.regenerate((err) => {
+				if (err) console.log(err);
+			});
 			session.userId = user.id;
 			session.save();
 
@@ -104,8 +111,10 @@ export class UsersController {
 	async logout(@Session() session: MySession) {
 		if (session.userId !== undefined) {
 			this.storeService.removeSession(session.id);
-			
-			session.destroy((err) => { if (err) console.error(err) });
+
+			session.destroy((err) => {
+				if (err) console.error(err);
+			});
 			return true;
 		}
 
@@ -121,7 +130,7 @@ export class UsersController {
 
 		session.userId = user.id;
 		session.save();
-		
+
 		return true;
 	}
 }

@@ -1,9 +1,7 @@
 <script lang="ts">
-    import { Button,TextInput } from "carbon-components-svelte";
+	import { Button, TextInput } from "carbon-components-svelte";
 
-
-    let code: string = "";
-
+	let code: string = "";
 </script>
 
 <h2>Rooms</h2>
@@ -11,8 +9,13 @@
 
 <br />
 <br />
- 
-<TextInput labelText="Code" placeholder="12345" helperText="This is a randomly generated code you will recieve when creating a room" bind:value={code} />
+
+<TextInput
+	labelText="Code"
+	placeholder="12345"
+	helperText="This is a randomly generated code you will recieve when creating a room"
+	bind:value={code}
+/>
 <br />
 
 <Button size="small" href="/rooms/{code}">Join</Button>
@@ -31,4 +34,4 @@
 <h2>OR</h2>
 
 <br />
-<Button href="/rooms/@owned" size="small">My rooms</Button> 
+<Button href="/rooms/@owned" size="small">My rooms</Button>

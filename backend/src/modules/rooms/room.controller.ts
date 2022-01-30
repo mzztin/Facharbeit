@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Session, UnauthorizedException } from "@nestjs/common";
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	Get,
+	NotFoundException,
+	Param,
+	Post,
+	Session,
+	UnauthorizedException
+} from "@nestjs/common";
 import { MySession } from "../../context";
 import { CreateRoomDTO } from "./dto/CreateRoomDTO";
 import RoomEntity from "./room.entity";
@@ -26,7 +36,7 @@ export class RoomController {
 				code
 			}
 		});
-		
+
 		if (!room) {
 			throw new BadRequestException("Room with id not found");
 		}
@@ -36,13 +46,13 @@ export class RoomController {
 
 	@Get(":code")
 	async getRoom(@Param("code") code: string) {
-		console.log({ code })
+		console.log({ code });
 		const room = await RoomEntity.findOne({
 			where: {
 				code
 			}
 		});
-	
+
 		if (!room) throw new NotFoundException("room not found");
 
 		const { messages, ...result } = room;

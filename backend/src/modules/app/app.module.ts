@@ -37,7 +37,11 @@ const PGStore = pgConnect(session);
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: async (config: ConfigService) => {
-				const conString = `postgres://${config.get("POSTGRES_USERNAME")}:${config.get("POSTGRES_PASSWORD")}@${config.get("POSTGRES_HOST")}:${config.get("POSTGRES_PORT")}/${config.get("POSTGRES_DATABASE")}`;
+				const conString = `postgres://${config.get("POSTGRES_USERNAME")}:${config.get(
+					"POSTGRES_PASSWORD"
+				)}@${config.get("POSTGRES_HOST")}:${config.get("POSTGRES_PORT")}/${config.get(
+					"POSTGRES_DATABASE"
+				)}`;
 
 				return {
 					session: {
@@ -55,7 +59,7 @@ const PGStore = pgConnect(session);
 							conString
 						})
 					}
-				}
+				};
 			}
 		}),
 		ConfigModule,

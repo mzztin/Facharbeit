@@ -7,9 +7,9 @@
 	import "carbon-components-svelte/css/g90.css";
 
 	axios.defaults.withCredentials = true;
-	axios.defaults.baseURL = "http://192.168.1.53:4000"
+	axios.defaults.baseURL = "http://192.168.1.53:4000";
 
-	export const load: Load = async () => {	
+	export const load: Load = async () => {
 		try {
 			const res = await axios.get("/users/@me", {
 				method: "GET"
@@ -22,7 +22,7 @@
 					props: {
 						isLoggedIn: false
 					}
-				}
+				};
 			}
 
 			return {
@@ -34,19 +34,17 @@
 			};
 		} catch (e) {
 			return {
-					props: {
-						isLoggedIn: false,
-						username: undefined,
-						sessionId: undefined
-					}
-			}
+				props: {
+					isLoggedIn: false,
+					username: undefined,
+					sessionId: undefined
+				}
+			};
 		}
-
 	};
 </script>
 
-<script lang="ts">	
-	
+<script lang="ts">
 	export let username: string | undefined;
 
 	export let sessionId: string | undefined;
