@@ -1,16 +1,43 @@
 <script lang="ts" context="module">
-	import Message from "$lib/components/Message.svelte";
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
 	import axios from "axios";
-	import { Button,Column,Grid,Row,TextInput } from "carbon-components-svelte";
+	import { Column,Grid,Row } from "carbon-components-svelte";
 	import { io,Socket } from "socket.io-client";
 	import { onMount } from "svelte";
 
-	export const load: Load = ({ page }) => {
+	export const load: Load = async ({ page }) => {
+		const roomId = page.params.roomId;
+		let roomInfo;
+
+		try {
+			roomInfo = await axios.get(`/rooms/${roomId}`);
+
+			console.log({ roomInfo, data: roomInfo.data })
+		} catch (e) {
+			return {
+				props: {
+					isValid: false
+				}
+			}
+		}
+
+		console.log({ roomInfo: roomInfo.data })
+
+		if (roomInfo.data == false) {
+			return {
+				props: {
+					roomId,
+					isValid: false
+				}
+			}
+		}
+
 		return {
 			props: {
-				roomId: page.params.roomId
+				roomId,
+				roomInfo: roomInfo.data,
+				isValid: true
 			}
 		};
 	};
@@ -19,92 +46,124 @@
 
 <script lang="ts">
 
-	export let roomId: string = "";
-	const socketURL = "ws://localhost:4001"
-	
-	console.log(roomId)
 
-	const fetchMessages = async () => {
-		const messages = axios.get(`http://localhost:4000/rooms/${roomId}/messages`)
+	export let roomId: string = "";
+
+	export let roomInfo: {
+		id: number,
+		name: string,
+		ownerId: number,
+		createdAt: Date,
+		code: string
+	} = undefined;
 	
+	export let isValid: boolean = undefined;
+
+	let ownerUsername: string;
+
+	let messages: Array<{
+		content: string,
+		[value: string]: any
+	}> = [];
+
+	const socketURL = 	`ws://${"192.168.1.53"}:4001`;
+	
+	const fetchMessages = async () => {
+		console.log({ roomId })
+		return (await axios.get(`/rooms/${roomId}/messages`)).data as Array<{
+			content: string,
+			[value: string]: any
+		}>;
 	}
 
 	let socket: Socket;
 
-	onMount(async () => {
-		socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomId}`);
+	if (isValid) {
+		onMount(async () => {
+			const owner = await axios.get(`/users/${roomInfo.ownerId}}`)
+			ownerUsername = owner.data.username;
 
-		socket.emit("joinRoom", roomId)
-		
-		socket.on("userJoined", async (payload) => {
-			console.log(payload)
-		})
+			socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomId}`);
 
-		socket.on("recieveMessage", async (payload) => {
-			console.log(payload)
-		})
-	});
+			socket.emit("joinRoom", roomId)
+			
+			socket.on("userJoined", async (payload) => {
+				console.log(payload)
+			})
+
+			socket.on("recieveMessage", async (payload) => {
+				console.log(payload)
+			});
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+			// messages = await fetchMessages();
+		});
+
+	}
 
 	let value: string = "";
 
 	const sendMessage = () => {
-		socket.emit("sendMessage", value);
-		value = "";
+		messages.push({
+			content: "hello"
+		})
 	}
 
+	setInterval(sendMessage, 2000)
 </script>
 
-<Grid>
-	<Row>
-		<h1>Chatroom - {roomId}</h1>
-	</Row>	
+{#if isValid}
+	<Grid>
+		<Row>
+			<Column>
+				<h1>Chatroom - {roomInfo.name}</h1>
+			</Column>
+			
+			<Column>
+				<h3>ID: {roomInfo.code}</h3>
+			</Column>
 
-	<Row>
-		Owner: {roomId}
-	</Row>
+			<Column>
+				<h3>Created at {roomInfo.createdAt}</h3>
+			</Column>
+		</Row>	
 
-	<Row>
-		<Column>
-			<Message
-				username="Martin"
-				content="Hru"
-				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
-				createdAt={new Date(696765556436)}
-			/>
-		</Column>
-	</Row>
+		<Row>
+			<a href={`/users/${ownerUsername}`}>
+				Owner: {ownerUsername}
+			</a>
+		</Row>
 
-	<Row>
-		<Column>
-			<Message
-				username="Martin"
-				content="Hru 2"  
-				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
-				createdAt={new Date(696765556436)}
-			/>
-		</Column>
-	</Row>
+		messages:
+		{#each messages as message}
+			<code>{JSON.stringify(message)}</code>
+		{/each}
+	</Grid>
 
-	<Row>
-		<Column>
-			<Message
-				username="Martin"
-				content="Hru 3"
-				avatar={`https://avatars.dicebear.com/api/male/${"Martin"}.svg`}
-				createdAt={new Date(696765556436)}
-			/>
-		</Column>
-	</Row>
 
-	<Row>
-		
-		<Column>
-			<TextInput placeholder="Enter message" bind:value />
-		</Column>
+{:else}
+	<h3>Room with code <b>{roomId}</b> not found!</h3>
+	<br />
 
-		<Column>
-			<Button kind="ghost" on:click={sendMessage}>Send!</Button>
-		</Column>
-		
-	</Row>
-</Grid>
+	<h3>Click one of these links to return:</h3>
+	<br />
+
+	<a href="/"><h4>Return to homepage</h4></a>
+	<br />
+
+	<h5>OR</h5>
+
+	<br />
+	<a href="/rooms"><h4>Return to room hub</h4></a>
+{/if}
+
+<style>
+	a {
+     text-decoration: none;
+     color: inherit;
+	}
+
+	a:hover {
+		text-decoration: underline;
+		color: crimson;
+	}
+</style>

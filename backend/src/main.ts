@@ -10,9 +10,9 @@ import { AppModule } from "./modules/app/app.module";
 	app.useWebSocketAdapter(new IoAdapter(app));
 
 	app.enableCors({
-		origin: ["http://localhost:3000"],
-		credentials: true
+		origin: ["localhost", "http://192.168.1.53:3000"],
+		credentials: true		
 	})
-	
-	await app.listen(4000);
+
+	await app.listen(4000, "0.0.0.0");
 })();

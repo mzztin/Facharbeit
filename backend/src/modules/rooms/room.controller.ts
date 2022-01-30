@@ -1,5 +1,6 @@
-import { BadRequestException, Controller, Get, Param, Post, Session, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Session, UnauthorizedException } from "@nestjs/common";
 import { MySession } from "../../context";
+import { CreateRoomDTO } from "./dto/CreateRoomDTO";
 import RoomEntity from "./room.entity";
 import { RoomsService } from "./rooms.service";
 
@@ -12,17 +13,17 @@ export class RoomController {
 		const userId = session.userId;
 
 		if (!userId) {
-			throw new UnauthorizedException("Not logged in");
+			throw new UnauthorizedException();
 		}
 
 		return this.roomsService.getOwnRooms(userId);
 	}
 
-	@Get(":id/messages")
-	async getMessages(@Param(":id") id: number) {
+	@Get(":code/messages")
+	async getMessages(@Param("code") code: string) {
 		const room = await RoomEntity.findOne({
 			where: {
-				code: id
+				code
 			}
 		});
 		
@@ -33,8 +34,37 @@ export class RoomController {
 		return room.messages;
 	}
 
+	@Get(":code")
+	async getRoom(@Param("code") code: string) {
+		console.log({ code })
+		const room = await RoomEntity.findOne({
+			where: {
+				code
+			}
+		});
+	
+		if (!room) throw new NotFoundException("room not found");
+
+		const { messages, ...result } = room;
+		return result;
+	}
+
 	@Post()
-	async create(@Session() session: MySession) {
-		session.userId;
+	async create(@Session() session: MySession, @Body() body: CreateRoomDTO) {
+		if (!session.userId) {
+			throw new UnauthorizedException();
+		}
+
+		const room = new RoomEntity();
+
+		room.ownerId = session.userId;
+		room.name = body.name;
+		room.messages = [];
+		room.createdAt = new Date();
+		await room.genCodeAndSave();
+
+		const { messages, ...result } = room;
+
+		return result;
 	}
 }

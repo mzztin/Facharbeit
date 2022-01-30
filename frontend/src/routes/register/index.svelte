@@ -18,7 +18,7 @@
 		}
 
 		try {
-			const res = await axios.post("http://localhost:4000/users/signup", {
+			const res = await axios.post("/users/signup", {
 				username,
 				password
 			});

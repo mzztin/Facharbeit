@@ -2,7 +2,6 @@
 	import { Getter } from "$lib/utils/store";
 	import axios from "axios";
 	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
-	import { re } from "svelte/internal";
 
 	let username: string;
 	let password: string;
@@ -20,7 +19,7 @@
 		}
 
 		try {
-			const res = await axios.post("http://localhost:4000/users/login", {
+			const res = await axios.post("/users/login", {
 				username,
 				password
 			});

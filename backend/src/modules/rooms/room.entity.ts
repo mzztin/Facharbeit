@@ -3,8 +3,7 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
-	ManyToOne,
-	PrimaryGeneratedColumn
+	ManyToMany, PrimaryGeneratedColumn
 } from "typeorm";
 import RoomMessageEntity from "./room.message.entity";
 
@@ -25,7 +24,7 @@ export default class RoomEntity extends BaseEntity {
 	@Column("varchar")
 	code: string;
 
-	@ManyToOne(() => RoomMessageEntity, (msg) => msg.room)
+	@ManyToMany(() => RoomMessageEntity, (msg) => msg.room)
 	messages: RoomMessageEntity[];
 
 	async genCodeAndSave() {

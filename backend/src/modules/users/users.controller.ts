@@ -45,7 +45,7 @@ export class UsersController {
 
 			this.storeService.addSession(session.id, user.id);
 
-			const { sentMessages, recievedMessages, ...result }: any = user;
+			const { sentMessages, recievedMessages, password, ...result }: any = user;
 
 			result["sessionId"] = this.hashService.encryptSessionId(session.id);
 			

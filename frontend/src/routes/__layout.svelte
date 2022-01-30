@@ -7,10 +7,11 @@
 	import "carbon-components-svelte/css/g90.css";
 
 	axios.defaults.withCredentials = true;
+	axios.defaults.baseURL = "http://192.168.1.53:4000"
 
 	export const load: Load = async () => {	
 		try {
-			const res = await axios.get("http://localhost:4000/users/@me", {
+			const res = await axios.get("/users/@me", {
 				method: "GET"
 			});
 

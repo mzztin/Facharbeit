@@ -5,7 +5,7 @@
     let awaiting = true;
 
     onMount(async () => {
-        const res = await axios.post("http://localhost:4000/users/logout");
+        const res = await axios.post("/users/logout");
 
         if (res.data) {
             success = true;
