@@ -23,8 +23,6 @@ export class UsersService {
 		user.username = username;
 		user.password = this.hashService.hashPassword(password);
 		user.createdAt = new Date();
-		user.sentMessages = [];
-		user.recievedMessages = [];
 
 		return user.save();
 	}

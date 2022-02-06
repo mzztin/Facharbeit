@@ -1,7 +1,7 @@
 <script lang="ts">
 	import axios from "axios";
-	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
-	import {} from "svelte";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+	import { } from "svelte";
 
 	let username: string;
 	let password: string;
@@ -32,13 +32,15 @@
 	};
 </script>
 
-<p>{$data}</p>
-
 <h2>Register</h2>
 <br />
 
 {#if signedUp}
 	<h4>Signed In</h4>
+
+	<a class="hover-href" href="/">
+		<h4>Return to homepage</h4>
+	</a>
 {:else}
 	<TextInput
 		bind:value={username}
@@ -53,3 +55,4 @@
 
 	<Button class="space-y-3" on:click={login} kind="tertiary">Register</Button>
 {/if}
+

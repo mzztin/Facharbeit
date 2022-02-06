@@ -5,6 +5,7 @@
 	import axios from "axios";
 	import { Content } from "carbon-components-svelte";
 	import "carbon-components-svelte/css/g90.css";
+	import "../global.css";
 
 	axios.defaults.withCredentials = true;
 	axios.defaults.baseURL = "http://192.168.1.53:4000";

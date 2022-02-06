@@ -1,16 +1,12 @@
 <script lang="ts">
-	import { Getter } from "$lib/utils/store";
 	import axios from "axios";
-	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
 
 	let success = null;
 	let error = null;
-
-	const loggedIn = Getter.getLoggedIn();
-	const un = Getter.getUsername();
 
 	async function handleLogin() {
 		if (!username || !password) {
@@ -46,7 +42,6 @@
 </script>
 
 <h1>Login</h1>
-<p>Dev: {loggedIn}, Username: {un}</p>
 
 <br />
 

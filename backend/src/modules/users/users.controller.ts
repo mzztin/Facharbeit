@@ -27,13 +27,10 @@ export class UsersController {
 	@Get()
 	async findAll() {
 		return (await this.usersService.getUsers()).map((user) => {
-			const { password, recievedMessages, sentMessages, ...userData } = user;
+			const { password, ...userData } = user;
 
 			const result = {
 				...userData,
-				stats: {
-					messagesSent: sentMessages?.length ?? 0
-				}
 			};
 
 			return result;
@@ -41,7 +38,7 @@ export class UsersController {
 	}
 
 	@Get("/@me")
-	async me(@Session() session: MySession) {
+	async me(@Session() session: MySession) {		
 		if (session.userId) {
 			const user = await this.usersService.getUserById(session.userId);
 			if (!user) {
@@ -71,7 +68,7 @@ export class UsersController {
 			throw new NotFoundException("User with given username not found");
 		}
 
-		const { password, recievedMessages, sentMessages, ...result } = user;
+		const { password, ...result } = user;
 		return result;
 	}
 
@@ -82,7 +79,7 @@ export class UsersController {
 			throw new NotFoundException("User with given ID not found");
 		}
 
-		const { password, recievedMessages, sentMessages, ...result } = user;
+		const { password, ...result } = user;
 
 		return result;
 	}
@@ -91,11 +88,8 @@ export class UsersController {
 	async signup(@Body() { username, password }: SignUpDTO, @Session() session: MySession) {
 		try {
 			const user = await this.usersService.createUser(username, password);
-			console.log("user", user);
 
-			session.regenerate((err) => {
-				if (err) console.log(err);
-			});
+			session.destroy((err) => { if (err) { throw new UnauthorizedException() }});
 			session.userId = user.id;
 			session.save();
 
@@ -113,7 +107,7 @@ export class UsersController {
 			this.storeService.removeSession(session.id);
 
 			session.destroy((err) => {
-				if (err) console.error(err);
+				if (err) { console.log(err) }
 			});
 			return true;
 		}
@@ -128,6 +122,7 @@ export class UsersController {
 
 		this.storeService.addSession(session.id, user.id);
 
+		session.destroy((err) => { if (err) { console.log(err) }})
 		session.userId = user.id;
 		session.save();
 

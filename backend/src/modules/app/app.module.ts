@@ -6,7 +6,6 @@ import { SessionModule } from "nestjs-session";
 import { ConnectionOptions } from "typeorm";
 import { ConfigModule } from "../config/config.module";
 import { ConfigService } from "../config/config.service";
-import { MessagesModule } from "../messages/messages.module";
 import { RoomsModule } from "../rooms/rooms.module";
 import { UsersModule } from "../users/users.module";
 import { AppController } from "./app.controller";
@@ -45,15 +44,15 @@ const PGStore = pgConnect(session);
 
 				return {
 					session: {
-						name: "my-session-123",
-						secret: "keyboard cat1234",
+						name: "chat-session",
+						secret: "1234567890",
 						resave: false,
 						saveUninitialized: true,
 						cookie: {
 							httpOnly: false,
 							secure: false,
 							maxAge: 1000 * 60 * 60 * 24 * 365,
-							sameSite: "lax"
+							sameSite: "lax",
 						},
 						store: new PGStore({
 							conString
@@ -64,7 +63,6 @@ const PGStore = pgConnect(session);
 		}),
 		ConfigModule,
 		UsersModule,
-		MessagesModule,
 		RoomsModule
 	],
 	controllers: [AppController],

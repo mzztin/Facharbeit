@@ -28,6 +28,7 @@
 	{#if isLoggedIn}
 		<HeaderNav>
 			<HeaderNavItem href="/rooms" text="Rooms" />
+			<HeaderNavItem href="/users" text="Users" />
 		</HeaderNav>
 	{/if}
 

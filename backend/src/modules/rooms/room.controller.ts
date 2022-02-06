@@ -46,7 +46,6 @@ export class RoomController {
 
 	@Get(":code")
 	async getRoom(@Param("code") code: string) {
-		console.log({ code });
 		const room = await RoomEntity.findOne({
 			where: {
 				code

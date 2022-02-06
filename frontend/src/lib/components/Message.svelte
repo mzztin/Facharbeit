@@ -1,18 +1,11 @@
 <script lang="ts">
-	import { Row, Column, Grid } from "carbon-components-svelte";
-	import moment from "moment";
+	import { Grid,Row } from "carbon-components-svelte";
 
-	export let username: string;
+	export let id: number;
 	export let avatar: string;
+	export let username: string;
 	export let content: string;
 	export let createdAt: Date;
-	export let id: string = "martin_xd";
-
-	const beautify = () => {
-		return moment(createdAt).fromNow();
-	};
-
-	import {} from "carbon-components-svelte";
 </script>
 
 <Grid narrow padding>
@@ -33,16 +26,5 @@
 		border-radius: 50%;
 		height: 18px;
 		width: 18px;
-	}
-
-	.username {
-	}
-
-	.text {
-		margin-left: 12px;
-		max-width: 70%;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
 	}
 </style>
