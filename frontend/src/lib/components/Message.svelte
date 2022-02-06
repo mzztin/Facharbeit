@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Grid,Row } from "carbon-components-svelte";
+	import { Grid, Row } from "carbon-components-svelte";
 
 	export let id: number;
 	export let avatar: string;

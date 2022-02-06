@@ -6,6 +6,7 @@ let sessionId = writable();
 let loggedIn = writable(undefined);
 let username = writable();
 
+
 export class Getter {
 	static getUsername(): Either<string> {
 		if (get(username) == undefined) {

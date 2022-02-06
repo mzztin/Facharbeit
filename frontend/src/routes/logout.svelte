@@ -1,28 +1,21 @@
-<script lang="ts">
-	import axios from "axios";
-	import { onMount } from "svelte";
+<script context="module" lang="ts">
+import type { Load } from "@sveltejs/kit";
+import axios from "axios";
+
 	let success = false;
 	let awaiting = true;
 
-	onMount(async () => {
-		const res = await axios.post("/users/logout");
+	export const load: Load = async ({ page }) => {
+		try {
+			await axios.post("/users/logout");
 
-		if (res.data) {
-			success = true;
-		} else {
-			awaiting = false;
+			return {
+				redirect: "/"
+			}
+		} catch (e) {
+			return {
+				redirect: "/"
+			}
 		}
-	});
+	}
 </script>
-
-{#if success}
-	<h2>Successfully logged out</h2>
-
-	<a href="/">
-		<h4>Return to homepage</h4>
-	</a>
-{:else if awaiting}
-	<h2>Waiting to log out...</h2>
-{:else}
-	<h2>Could not log out</h2>
-{/if}

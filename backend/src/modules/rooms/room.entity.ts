@@ -3,6 +3,7 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	JoinTable,
 	ManyToMany,
 	PrimaryGeneratedColumn
 } from "typeorm";
@@ -25,7 +26,10 @@ export default class RoomEntity extends BaseEntity {
 	@Column("varchar")
 	code: string;
 
-	@ManyToMany(() => RoomMessageEntity, (msg) => msg.room)
+	@ManyToMany(() => RoomMessageEntity, msg => msg.room, {
+		eager: true
+	})
+	@JoinTable()
 	messages: RoomMessageEntity[];
 
 	async genCodeAndSave() {

@@ -31,6 +31,7 @@ export class UsersController {
 
 			const result = {
 				...userData,
+				avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
 			};
 
 			return result;
@@ -50,7 +51,8 @@ export class UsersController {
 			const { sentMessages, recievedMessages, password, ...result }: any = user;
 
 			result["sessionId"] = this.hashService.encryptSessionId(session.id);
-
+			result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
+			
 			return result;
 		}
 
@@ -68,7 +70,9 @@ export class UsersController {
 			throw new NotFoundException("User with given username not found");
 		}
 
-		const { password, ...result } = user;
+
+		let { password, ...result }: any = user;
+		result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
 		return result;
 	}
 
@@ -79,8 +83,8 @@ export class UsersController {
 			throw new NotFoundException("User with given ID not found");
 		}
 
-		const { password, ...result } = user;
-
+		const { password, ...result }: any = user;
+		result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
 		return result;
 	}
 
@@ -109,6 +113,7 @@ export class UsersController {
 			session.destroy((err) => {
 				if (err) { console.log(err) }
 			});
+			
 			return true;
 		}
 

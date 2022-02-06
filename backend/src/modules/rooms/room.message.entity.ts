@@ -1,8 +1,8 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import RoomEntity from "./room.entity";
 
 @Entity()
-export default class RoomMessageEntity {
+export default class RoomMessageEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -12,11 +12,9 @@ export default class RoomMessageEntity {
 	@Column("text")
 	content: string;
 
+	@ManyToMany(() => RoomEntity, room => room.messages)
+	room: RoomEntity;
+
 	@CreateDateColumn()
 	createdAt: Date;
-
-	@ManyToMany(() => RoomEntity, (entity) => entity.messages, {
-		cascade: true
-	})
-	room: RoomEntity;
 }

@@ -16,6 +16,8 @@ import "reflect-metadata";
 import { Server, Socket } from "socket.io";
 import { HashService } from "../hash/hash.service";
 import { StoreService } from "../store/store.service";
+import RoomEntity from "./room.entity";
+import RoomMessageEntity from "./room.message.entity";
 import { RoomsService } from "./rooms.service";
  
  @WebSocketGateway(4001, {
@@ -74,12 +76,29 @@ import { RoomsService } from "./rooms.service";
      }
  
      @SubscribeMessage("sendMessage")
-     sendMessage(client: Socket, payload: any) {
-         payload = String(payload);
+     async sendMessage(client: Socket, payload: string) {
+        console.log(payload) 
+        payload = String(payload);
+
+
+        let message = new RoomMessageEntity()
+        message.senderId = client.data.userId as number;
+        message.content = payload;
+        message.createdAt = new Date();
+        await message.save();
+
+        let room = await RoomEntity.findOneOrFail({
+            where: {
+                code: client.data.roomId as string
+            }
+        });
+
+        if (!room.messages) room.messages = [];
+
+        room.messages.push(message);
+        await room.save();    
  
-         this.server.to(client.data.roomId).emit("recieveMessage", {
-             message: payload
-         });
+         this.server.to(client.data.roomId).emit("recieveMessage", message);
      }
  
      @SubscribeMessage("leaveRoom")

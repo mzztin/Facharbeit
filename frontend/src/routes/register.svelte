@@ -1,7 +1,7 @@
 <script lang="ts">
 	import axios from "axios";
-	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
-	import { } from "svelte";
+	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
+	import {} from "svelte";
 
 	let username: string;
 	let password: string;
@@ -55,4 +55,3 @@
 
 	<Button class="space-y-3" on:click={login} kind="tertiary">Register</Button>
 {/if}
-

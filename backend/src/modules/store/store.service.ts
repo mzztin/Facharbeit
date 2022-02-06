@@ -14,10 +14,6 @@ export class StoreService {
 		}
 
 		this.sessionIdToUserId[sessionId] = userId;
-
-		console.log(`Added ${sessionId}, uid: ${userId}`);
-
-		this.dump();
 	}
 
 	public getUserID(sessionId: string) {

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import axios from "axios";
-	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+import { goto } from "$app/navigation";
+import axios from "axios";
+import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
@@ -25,6 +26,8 @@
 
 			if (res.status === 201) {
 				success = true;
+				goto("/");
+				location.reload();
 				return;
 			}
 

@@ -9,6 +9,7 @@
 
 	axios.defaults.withCredentials = true;
 	axios.defaults.baseURL = "http://192.168.1.53:4000";
+	axios.defaults.validateStatus = () => true;
 
 	export const load: Load = async () => {
 		try {

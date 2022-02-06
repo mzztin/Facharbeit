@@ -1,17 +1,18 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
-import { Button,Search } from "carbon-components-svelte";
+	import { goto } from "$app/navigation";
+	import { Button, Search } from "carbon-components-svelte";
 
-
-let value: string;
-
+	let value: string;
 </script>
 
 <Search bind:value placeholder="Enter username" />
 <br />
-<Button size="small" on:click={() => {
-    goto(`/users/${value}`)
-}}>Go to profile</Button>
+<Button
+	size="small"
+	on:click={() => {
+		goto(`/users/${value}`);
+	}}>Go to profile</Button
+>
 
 <br />
 <br />
@@ -20,6 +21,9 @@ let value: string;
 
 <br />
 
-<Button size="small" on:click={() => {
-    goto(`/users/@me`)
-}}>Go to my profile</Button>
+<Button
+	size="small"
+	on:click={() => {
+		goto(`/users/@me`);
+	}}>Go to my profile</Button
+>

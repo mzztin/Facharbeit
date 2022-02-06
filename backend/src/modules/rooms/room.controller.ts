@@ -30,7 +30,7 @@ export class RoomController {
 	}
 
 	@Get(":code/messages")
-	async getMessages(@Param("code") code: string) {
+	async getMessages(@Param("code") code: string) {		
 		const room = await RoomEntity.findOne({
 			where: {
 				code
@@ -39,6 +39,11 @@ export class RoomController {
 
 		if (!room) {
 			throw new BadRequestException("Room with id not found");
+		}
+
+		if (!room.messages) {
+			room.messages = [];
+			await room.save();
 		}
 
 		return room.messages;
