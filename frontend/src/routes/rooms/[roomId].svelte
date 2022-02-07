@@ -1,5 +1,7 @@
 <script lang="ts" context="module">
-	import type { Message,Room } from "$lib/types/rooms";
+	import { goto } from "$app/navigation";
+	import MessageComponent from "$lib/components/Message.svelte";
+	import type { Message,MessageWithUser,Room } from "$lib/types/rooms";
 	import api from "$lib/utils/cached-api";
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
@@ -7,7 +9,6 @@
 	import { Column,Grid,Row,TextInput } from "carbon-components-svelte";
 	import moment from "moment";
 	import { io,Socket } from "socket.io-client";
-	import { onMount } from "svelte";
 
 	export const load: Load = async ({ page }) => {
 		const roomId = page.params.roomId;
@@ -32,28 +33,34 @@
 
 <script lang="ts">
 
-	const fetchMessages = async () => {
-		return (await axios.get(`/rooms/${roomData.code}/messages`)).data as Message[];
-	};
+
+
 
 	export let roomData: Room;
 	export let isValid: boolean = undefined;
 
-
-	const socketURL = `ws://${"192.168.1.53"}:4001`;
+	const socketURL = `http://localhost:4002`;
 	let socket: Socket;
 
 	let messages: Message[] = [];
 	let ownerUsername: string | undefined;
 
-	if (isValid) {	
-		onMount(async () => {
+	if (isValid) {
+		(async () => {
 			const owner = await axios.get(`/users/${roomData.ownerId}}`);
 			ownerUsername = owner.data.username;
 
-			messages = await fetchMessages();
+			for (const msg of await fetchMessages()) {
+				addMessage(msg);
+			}
 
-			socket = io(socketURL + `?sessionId=${Getter.getSessionID()}&roomId=${roomData.code}`);
+			socket = io(`http://192.168.1.53:4002`, {
+				reconnection: true,
+				query: {
+					sessionId: Getter.getSessionID(),
+					roomId: roomData.code
+				}
+			});
 
 			socket.emit("joinRoom", roomData.code);
 
@@ -61,19 +68,31 @@
 				console.log(payload);
 			});
 
+			socket.on("reload_page", () => {
+				goto(`/rooms/${roomData.code}`)
+			});
+
+			socket.on("connect_error", (err) => {  console.log(`connect_error due to ${err.message}`);});
+
 			socket.on("recieveMessage", async (payload) => {
 				addMessage(payload as Message);
 			});
-		});
+		})();
 	}
 
 	let value: string = "";
 
-	const addMessage = (data: Message) => {
-		messages.push(data);
+	const addMessage = async (data: Message) => {
+		let updated: MessageWithUser = data;
+		updated.user = await fetchUserData(updated.senderId);
 
+		messages.push(updated);
 		// reassign => https://stackoverflow.com/questions/70099100/how-would-i-make-an-each-loop-in-svelte-reactive
 		messages = messages;
+	};
+
+	const fetchMessages = async () => {
+		return (await axios.get(`/rooms/${roomData.code}/messages`)).data as Message[];
 	};
 
 	const submit = async () => {
@@ -87,12 +106,13 @@
 		value = "";
 	}
 
-	const getUserData = async (id: number) => {
-		const data = (await api.get(`/users/${id}`)).data;
-		console.log("userData", data);
-		return data;
+	const fetchUserData = async (userId: number) => {
+		try {
+			return (await api.get(`/users/${userId}`)).data;
+		} catch (e) {
+			return undefined;
+		}
 	}
-	getUserData(3)
 </script>
 
 {#if isValid}
@@ -120,7 +140,7 @@
 		messages:
 
 		{#each messages as message}
-			<code>{JSON.stringify(message)}</code>
+			<MessageComponent message={message} />
 		{/each}
 
 		<TextInput placeholder="Enter message" on:keydown={(event) => {

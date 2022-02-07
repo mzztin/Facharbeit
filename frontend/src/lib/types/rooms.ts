@@ -1,3 +1,5 @@
+import type { User } from "./user";
+
 export type Room = {
 	id: number;
 	name: string;
@@ -14,3 +16,7 @@ export type Message = {
 	createdAt: string;
 	room: Room;
 };
+
+export type MessageWithUser = Message & {
+	user?: User;
+}

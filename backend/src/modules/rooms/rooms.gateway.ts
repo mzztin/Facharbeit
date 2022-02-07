@@ -16,17 +16,15 @@ import "reflect-metadata";
 import { Server, Socket } from "socket.io";
 import { HashService } from "../hash/hash.service";
 import { StoreService } from "../store/store.service";
-import RoomEntity from "./room.entity";
-import RoomMessageEntity from "./room.message.entity";
 import { RoomsService } from "./rooms.service";
  
- @WebSocketGateway(4001, {
+ @WebSocketGateway(4002, {
      cors: {
          origin: "*"
      },
      serveClient: true
  })
- export class RoomGateaway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
      @WebSocketServer() server: Server;
  
      private logger = new Logger("MessagesGateaway");
@@ -35,72 +33,63 @@ import { RoomsService } from "./rooms.service";
          private roomsService: RoomsService,
          private hashService: HashService,
          private storeService: StoreService
-     ) {}
+     ) {     }
  
      afterInit(_server: any) {
          this.logger.log("Message Gateaway has been initalized");
      }
  
-     handleConnection(client: Socket, _: any[]) {
-         this.logger.log(`Client ${client.id} connected`);
+     handleConnection(client: Socket) {
          const roomId = client.handshake.query["roomId"] as string;
          const encryptedSessionId = client.handshake.query["sessionId"];
  
          for (const stuff in [roomId, encryptedSessionId]) {
              if (typeof stuff !== "string" || typeof stuff == "undefined") {
-                 client.disconnect(true);
-                 return;
+                 this.logger.warn(`Client ${client.id} disconnected, Reason: Invalid session or room id`)
+                 return this.roomsService.disconnect(client);
              }
          }
  
-         if (!this.roomsService.isValidCode(roomId ?? "bozo")) {
-             client.disconnect(true);
-         }
+         if (!this.roomsService.isValidCode(roomId ?? "-")) {
+
+            this.logger.warn(`Client ${client.id} disconnected, Reason: Invalid room id`)
+            return this.roomsService.disconnect(client);
+         } 
  
          const sessionId = this.hashService.decryptSessionId(encryptedSessionId as string);
- 
          const userId = this.storeService.getUserID(sessionId);
  
-         client.data.userId = userId as number;
+         if (!userId) {
+            this.logger.warn(`Client ${client.id} disconnected, Reason: no user id found`)
+            return this.roomsService.reloadSocketUser(client);
+         }
+
+         client.data.userId = userId;
          client.data.roomId = roomId as string;
          client.join(roomId as string);
  
          this.server.to(roomId).emit("userJoined", {
-             userId,
-             time: Date.now()
+             userId, time: Date.now()
          });
+         
+         return this.logger.log(`Client ${client.id} connected`);
      }
  
      handleDisconnect(client: Socket) {
          this.logger.log(`Client ${client.id} disconnected`);
      }
- 
+
+     @SubscribeMessage("joinRoom")
+     async joinRoom(client: Socket, payload: string) {
+        if (client.data.roomId === payload) {
+            this.server.to(client.data.roomId).emit("userJoined", client.data.userId);
+        }
+     }
+
      @SubscribeMessage("sendMessage")
      async sendMessage(client: Socket, payload: string) {
-        console.log(payload) 
-        payload = String(payload);
+        const message = await this.roomsService.createMessage(client.data.userId, String(payload), client.data.roomId)
 
-
-        let message = new RoomMessageEntity()
-        message.senderId = client.data.userId as number;
-        message.content = payload;
-        message.createdAt = new Date();
-        await message.save();
-
-        let room = await RoomEntity.findOneOrFail({
-            where: {
-                code: client.data.roomId as string
-            }
-        });
-
-        if (!room.messages) room.messages = [];
-
-        room.messages.push(message);
-        await room.save();    
- 
-         this.server.to(client.data.roomId).emit("recieveMessage", message);
+        this.server.to(client.data.roomId).emit("recieveMessage", message);
      }
- 
-     @SubscribeMessage("leaveRoom")
-     leaveRoom(_client: Socket) {}
  }

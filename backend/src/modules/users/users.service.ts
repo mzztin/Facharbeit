@@ -1,11 +1,13 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { Socket } from "socket.io";
+import { MySession } from "src/context";
 import { HashService } from "../hash/hash.service";
+import { StoreService } from "../store/store.service";
 import UserEntity from "./user.entity";
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly hashService: HashService) {}
+	constructor(private readonly hashService: HashService, private storeService: StoreService) {}
 
 	async existsUser(username: string): Promise<boolean> {
 		const user = await this.getUser(username);
@@ -27,6 +29,47 @@ export class UsersService {
 		return user.save();
 	}
 
+	async mapAllUsers() {
+		return (await this.getUsers()).map((user) => {
+			const { password, ...userData } = user;
+
+			const result = {
+				...userData,
+				avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
+			};
+
+			return result;
+		});
+	}
+
+	async getMyself(userId: number, sessionId: string) {
+		const user = await this.getUserById(userId);
+		
+		if (!user) {
+			throw new UnauthorizedException("You are not logged in");
+		}
+
+		const encryptedSID = await this.addSessionToStore(sessionId, userId)
+
+		const { sentMessages, recievedMessages, password, ...result }: any = user;
+
+		result["sessionId"] = encryptedSID;
+		result["avatar"] = this.getAvatar(userId);
+		
+		return result;
+	}
+
+	getAvatar(
+		userId: number
+	): string {
+		return `https://avatars.dicebear.com/api/adventurer-neutral/css33d${userId}.svg`;
+	}
+
+	async addSessionToStore(sessionId: string, userId: number) {
+		this.storeService.addSession(sessionId, userId);
+		return this.hashService.encryptSessionId(sessionId);
+	}
+
 	async getUserById(id: number) {
 		const user = UserEntity.findOne(id);
 
@@ -35,6 +78,32 @@ export class UsersService {
 		}
 
 		return user;
+	}
+
+	getUserData(user: UserEntity) {
+		const { password, ...userData } = user;
+
+		const result = {
+			...userData,
+			avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
+		};
+
+		return result;
+	}
+
+	destroySession(session: MySession) {
+		this.storeService.removeSession(session.id);
+
+		session.destroy((err) => {
+			if (err) {
+				Logger.warn(`Could not destroy session`);
+			}
+		})
+	}
+
+	setSessionAndSave(session: MySession, user: UserEntity) {
+		session.userId = user.id;
+		session.save();
 	}
 
 	async getUser(username: string): Promise<UserEntity | undefined> {

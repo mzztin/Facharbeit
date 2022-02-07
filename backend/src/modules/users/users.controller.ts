@@ -1,17 +1,13 @@
 import {
 	Body,
 	Controller,
-	Get,
-	HttpCode,
+	Get, HttpException,
 	NotFoundException,
 	Param,
-	Post,
-	Session,
+	Post, Session,
 	UnauthorizedException
 } from "@nestjs/common";
 import { MySession } from "../../context";
-import { HashService } from "../hash/hash.service";
-import { StoreService } from "../store/store.service";
 import { LoginDTO } from "./dto/login.dto";
 import { SignUpDTO } from "./dto/signup.dto";
 import { UsersService } from "./users.service";
@@ -20,40 +16,17 @@ import { UsersService } from "./users.service";
 export class UsersController {
 	constructor(
 		private usersService: UsersService,
-		private hashService: HashService,
-		private storeService: StoreService
 	) {}
 
 	@Get()
 	async findAll() {
-		return (await this.usersService.getUsers()).map((user) => {
-			const { password, ...userData } = user;
-
-			const result = {
-				...userData,
-				avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
-			};
-
-			return result;
-		});
+		return await this.usersService.mapAllUsers();
 	}
 
 	@Get("/@me")
 	async me(@Session() session: MySession) {		
 		if (session.userId) {
-			const user = await this.usersService.getUserById(session.userId);
-			if (!user) {
-				throw new UnauthorizedException("You are not logged in");
-			}
-
-			this.storeService.addSession(session.id, user.id);
-
-			const { sentMessages, recievedMessages, password, ...result }: any = user;
-
-			result["sessionId"] = this.hashService.encryptSessionId(session.id);
-			result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
-			
-			return result;
+			return this.usersService.getMyself(session.userId, session.id);
 		}
 
 		throw new UnauthorizedException("You are not logged in");
@@ -70,10 +43,7 @@ export class UsersController {
 			throw new NotFoundException("User with given username not found");
 		}
 
-
-		let { password, ...result }: any = user;
-		result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
-		return result;
+		return this.usersService.getUserData(user);
 	}
 
 	@Get("/:id")
@@ -83,9 +53,7 @@ export class UsersController {
 			throw new NotFoundException("User with given ID not found");
 		}
 
-		const { password, ...result }: any = user;
-		result["avatar"] = `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`;
-		return result;
+		return this.usersService.getUserData(user);
 	}
 
 	@Post("/signup")
@@ -93,11 +61,9 @@ export class UsersController {
 		try {
 			const user = await this.usersService.createUser(username, password);
 
-			session.destroy((err) => { if (err) { throw new UnauthorizedException() }});
-			session.userId = user.id;
-			session.save();
-
-			this.storeService.addSession(session.id, user.id);
+			this.usersService.destroySession(session);
+			this.usersService.setSessionAndSave(session, user);
+			this.usersService.addSessionToStore(session.id, user.id);
 
 			return true;
 		} catch (e) {
@@ -107,29 +73,20 @@ export class UsersController {
 
 	@Post("/logout")
 	async logout(@Session() session: MySession) {
-		if (session.userId !== undefined) {
-			this.storeService.removeSession(session.id);
-
-			session.destroy((err) => {
-				if (err) { console.log(err) }
-			});
-			
+		if (session.userId) {
+			this.usersService.destroySession(session);
 			return true;
 		}
 
-		return false;
+		throw new HttpException("Not logged in", 400);
 	}
 
 	@Post("/login")
-	@HttpCode(201)
 	async login(@Body() body: LoginDTO, @Session() session: MySession) {
 		const user = await this.usersService.validateLogin(body.username, body.password);
 
-		this.storeService.addSession(session.id, user.id);
-
-		session.destroy((err) => { if (err) { console.log(err) }})
+		this.usersService.addSessionToStore(session.id, user.id);
 		session.userId = user.id;
-		session.save();
 
 		return true;
 	}

@@ -1,25 +1,17 @@
 <script lang="ts">
-	import { Grid, Row } from "carbon-components-svelte";
+		import type { MessageWithUser } from "$lib/types/rooms";
+		import type { User } from "$lib/types/user";
+		import moment from "moment";
 
-	export let id: number;
-	export let avatar: string;
-	export let username: string;
-	export let content: string;
-	export let createdAt: Date;
+
+	
+	export let message: MessageWithUser;
+	let user: User = message.user;
 </script>
 
-<Grid narrow padding>
-	<Row>
-		<a href={`/users/${id}/`}>
-			<img src={avatar} alt="https://avatars.dicebear.com/api/big-ears-neutral/static.svg" />
-			<p>{username}</p>
-		</a>
-	</Row>
 
-	<Row class="text">
-		{content}
-	</Row>
-</Grid>
+
+<p>{user.username} said: {message.content} (At: {moment(new Date(message.createdAt)).format("LLL")})</p>
 
 <style>
 	img {

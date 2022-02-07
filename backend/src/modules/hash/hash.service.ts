@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { AES, enc, SHA256 } from "crypto-js";
-const { Utf8 } = enc;
 
 const SESSION_ID_KEY = "MY_KEY";
 
@@ -25,6 +24,6 @@ export class HashService {
 	}
 
 	decryptSessionId(encrypted: string) {
-		return AES.decrypt(encrypted, SESSION_ID_KEY).toString(Utf8);
+		return AES.decrypt(encrypted, SESSION_ID_KEY).toString(enc.Utf8);
 	}
 }
