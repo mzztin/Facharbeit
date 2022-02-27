@@ -19,4 +19,4 @@ export type Message = {
 
 export type MessageWithUser = Message & {
 	user?: User;
-}
+};

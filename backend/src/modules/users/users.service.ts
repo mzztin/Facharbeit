@@ -2,7 +2,9 @@ import { ConflictException, Injectable, Logger, UnauthorizedException } from "@n
 import { Socket } from "socket.io";
 import { MySession } from "src/context";
 import { HashService } from "../hash/hash.service";
+import RoomEntity from "../rooms/room.entity";
 import { StoreService } from "../store/store.service";
+import { JoinedRoomEntity } from "./joinedrooms.entity";
 import UserEntity from "./user.entity";
 
 @Injectable()
@@ -44,30 +46,54 @@ export class UsersService {
 
 	async getMyself(userId: number, sessionId: string) {
 		const user = await this.getUserById(userId);
-		
+
 		if (!user) {
 			throw new UnauthorizedException("You are not logged in");
 		}
 
-		const encryptedSID = await this.addSessionToStore(sessionId, userId)
+		const encryptedSID = await this.addSessionToStore(sessionId, userId);
 
 		const { sentMessages, recievedMessages, password, ...result }: any = user;
 
 		result["sessionId"] = encryptedSID;
 		result["avatar"] = this.getAvatar(userId);
-		
+
 		return result;
 	}
 
-	getAvatar(
-		userId: number
-	): string {
+	getAvatar(userId: number): string {
 		return `https://avatars.dicebear.com/api/adventurer-neutral/css33d${userId}.svg`;
 	}
 
 	async addSessionToStore(sessionId: string, userId: number) {
 		this.storeService.addSession(sessionId, userId);
 		return this.hashService.encryptSessionId(sessionId);
+	}
+
+	async getPastRooms(user: UserEntity) {
+		const joinedRooms = await JoinedRoomEntity.find({
+			where: {
+				user
+			}
+		});
+
+		const rooms: RoomEntity[] = [];
+
+		for (const room of joinedRooms) {
+			rooms.push(
+				await RoomEntity.findOneOrFail({
+					where: {
+						code: room.roomCode
+					}
+				})
+			);
+		}
+
+		return rooms.map((room) => {
+			let { messages, ...rest }: any = room;
+			rest["lastActivity"] = joinedRooms.find((jr) => jr.roomCode == room.code)?.time;
+			return rest;
+		});
 	}
 
 	async getUserById(id: number) {
@@ -98,7 +124,7 @@ export class UsersService {
 			if (err) {
 				Logger.warn(`Could not destroy session`);
 			}
-		})
+		});
 	}
 
 	setSessionAndSave(session: MySession, user: UserEntity) {

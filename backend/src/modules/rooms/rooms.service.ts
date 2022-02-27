@@ -31,30 +31,34 @@ export class RoomsService {
 		client.disconnect(true);
 	}
 
-	async createMessage(senderId: number, messageValue: string, roomCode: string) {
-        let message = new RoomMessageEntity()
-        message.senderId = senderId;
-        message.content = messageValue;
-        message.createdAt = new Date();
-        await message.save();
+	sortMessages(messages: RoomMessageEntity[]) {
+		return messages.sort((a, b) => b.id - a.id);
+	}
 
-        let room = await RoomEntity.findOne({
+	async createMessage(senderId: number, messageValue: string, roomCode: string) {
+		let message = new RoomMessageEntity();
+		message.senderId = senderId;
+		message.content = messageValue;
+		message.createdAt = new Date();
+		await message.save();
+
+		let room = await RoomEntity.findOne({
 			where: {
 				code: roomCode
 			}
-		})
+		});
 
 		if (!room) {
 			Logger.error(`Room with code ${roomCode} not found`);
 			return;
 		}
 
-        if (!room.messages) room.messages = [];
+		if (!room.messages) room.messages = [];
 
-        room.messages.push(message);
-        await room.save();
-		
-		return message; 
+		room.messages.push(message);
+		await room.save();
+
+		return message;
 	}
 
 	async reloadSocketUser(client: Socket) {
@@ -92,5 +96,4 @@ export class RoomsService {
 		const { messages, ...result } = room;
 		return result;
 	}
-
 }

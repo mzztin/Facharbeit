@@ -2,17 +2,24 @@
 	import RoomDescription from "$lib/components/RoomDescription.svelte";
 	import type { Room } from "$lib/types/rooms";
 	import axios, { AxiosResponse } from "axios";
+	import moment from "moment";
+
+	type RoomAddon = Room & {
+		lastActivity: string;
+	};
 
 	const convertToArray = (res: AxiosResponse) => {
-		return res.data as Room[];
+		return res.data as RoomAddon[];
 	};
 </script>
 
-{#await axios.get("/rooms")}
+{#await axios.get("/users/joinedRoom/list")}
 	Loading
 {:then val}
 	{#each convertToArray(val) as room}
-		<RoomDescription {room} />
+		<RoomDescription {room}>
+			<h6>Last time joined: {moment(new Date(room.lastActivity)).format("LLL")}</h6>
+		</RoomDescription>
 	{/each}
 {:catch e}
 	{e}

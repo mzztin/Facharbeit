@@ -1,11 +1,10 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import axios from "axios";
 	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
-	import {} from "svelte";
 
 	let username: string;
 	let password: string;
-	let data: any;
 
 	let signedUp = false;
 
@@ -25,6 +24,10 @@
 
 			if (await res.data) {
 				signedUp = true;
+				goto("/");
+				setTimeout(() => {
+					location.reload();
+				}, 100);
 			}
 		} catch (e) {
 			console.debug(e);

@@ -35,3 +35,11 @@
 
 <br />
 <Button href="/rooms/@owned" size="small">My rooms</Button>
+
+<br />
+<br />
+
+<h2>OR</h2>
+
+<br />
+<Button href="/rooms/@past" size="small">Past rooms</Button>

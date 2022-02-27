@@ -6,11 +6,19 @@
 	let code: string | undefined = undefined;
 	let loading = false;
 	let error = false;
+	let errorReason = "";
 
 	let name: string = "";
 
 	const submit = async () => {
 		loading = true;
+
+		if (name == "" || !name) {
+			error = true;
+			errorReason = "No name given";
+			loading = false;
+			return;
+		}
 
 		try {
 			const res = await axios.post("/rooms", {
@@ -21,6 +29,7 @@
 			created = true;
 		} catch (e) {
 			error = true;
+			errorReason = "Internal error in creating";
 		}
 
 		loading = false;
@@ -39,9 +48,9 @@
 	<h2>Creating room...</h2>
 {:else if error}
 	<h2>Could not create a room</h2>
-	<h4>Request errored - Possibly not logged in!</h4>
+	<h4>Reason: {errorReason}</h4>
 {:else}
-	<TextInput labelText="Enter room name" placeholder="My private room" bind:name />
+	<TextInput labelText="Enter room name" placeholder="My private room" bind:value={name} />
 
 	<br />
 

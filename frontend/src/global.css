@@ -1,9 +1,9 @@
-a.hover-href {
+a.custom-hover {
 	text-decoration: none;
 	color: inherit;
 }
 
-a.hover-href:hover {
+a.custom-hover:hover {
 	text-decoration: underline;
 	color: crimson;
 }

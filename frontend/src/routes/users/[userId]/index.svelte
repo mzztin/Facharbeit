@@ -3,7 +3,7 @@
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
 	import axios from "axios";
-	import { Column,Grid,Row } from "carbon-components-svelte";
+	import { Column, Grid, Row } from "carbon-components-svelte";
 	import moment from "moment";
 
 	export const load: Load = async ({ page, fetch }) => {
@@ -32,18 +32,18 @@
 	export let exists: boolean = undefined;
 	export let user: User;
 
-    const isMe = user.username == Getter.getUsername();
+	const isMe = user.username == Getter.getUsername();
 </script>
 
 {#if exists}
 	<h3>User Profile</h3>
 
-    {#if isMe}
-        <h5>This is you!</h5>
-    {:else}
-        <h5>This is not you!</h5>
-    {/if}
-    
+	{#if isMe}
+		<h5>This is you!</h5>
+	{:else}
+		<h5>This is not you!</h5>
+	{/if}
+
 	<Grid narrow padding>
 		<Row>
 			<Column>

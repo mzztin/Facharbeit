@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Getter } from "$lib/utils/store";
 	import {
-	Header,
-	HeaderAction,
-	HeaderNav,
-	HeaderNavItem,
-	HeaderPanelDivider,
-	HeaderPanelLink,
-	HeaderPanelLinks,
-	HeaderUtilities
+		Header,
+		HeaderAction,
+		HeaderNav,
+		HeaderNavItem,
+		HeaderPanelDivider,
+		HeaderPanelLink,
+		HeaderPanelLinks,
+		HeaderUtilities
 	} from "carbon-components-svelte";
 	import { expoIn } from "svelte/easing";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
-import axios from "axios";
-import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+	import { goto } from "$app/navigation";
+	import axios from "axios";
+	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
@@ -27,7 +27,9 @@ import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 			if (res.status === 201) {
 				success = true;
 				goto("/");
-				location.reload();
+				setTimeout(() => {
+					location.reload();
+				}, 100);
 				return;
 			}
 
@@ -35,11 +37,8 @@ import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 				success = false;
 				error = true;
 			}
-
-			console.log({ error, success });
 		} catch (e) {
 			error = true;
-			console.log({ e });
 		}
 	}
 </script>

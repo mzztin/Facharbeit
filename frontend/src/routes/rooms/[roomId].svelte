@@ -1,14 +1,14 @@
 <script lang="ts" context="module">
 	import { goto } from "$app/navigation";
 	import MessageComponent from "$lib/components/Message.svelte";
-	import type { Message,MessageWithUser,Room } from "$lib/types/rooms";
+	import type { Message, MessageWithUser, Room } from "$lib/types/rooms";
 	import api from "$lib/utils/cached-api";
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
 	import axios from "axios";
-	import { Column,Grid,Row,TextInput } from "carbon-components-svelte";
+	import { TextInput } from "carbon-components-svelte";
 	import moment from "moment";
-	import { io,Socket } from "socket.io-client";
+	import { io, Socket } from "socket.io-client";
 
 	export const load: Load = async ({ page }) => {
 		const roomId = page.params.roomId;
@@ -19,8 +19,10 @@
 				props: {
 					isValid: false
 				}
-			}
+			};
 		}
+
+		axios.post(`/users/joinedRoom/${roomId}`);
 
 		return {
 			props: {
@@ -32,10 +34,6 @@
 </script>
 
 <script lang="ts">
-
-
-
-
 	export let roomData: Room;
 	export let isValid: boolean = undefined;
 
@@ -50,7 +48,11 @@
 			const owner = await axios.get(`/users/${roomData.ownerId}}`);
 			ownerUsername = owner.data.username;
 
-			for (const msg of await fetchMessages()) {
+			let msgs = await fetchMessages();
+			msgs = msgs.sort((a, b) => a.id - b.id);
+
+			for (const msg of msgs) {
+				console.log(JSON.stringify(msg));
 				addMessage(msg);
 			}
 
@@ -69,10 +71,12 @@
 			});
 
 			socket.on("reload_page", () => {
-				goto(`/rooms/${roomData.code}`)
+				goto(`/rooms/${roomData.code}`);
 			});
 
-			socket.on("connect_error", (err) => {  console.log(`connect_error due to ${err.message}`);});
+			socket.on("connect_error", (err) => {
+				console.log(`connect_error due to ${err.message}`);
+			});
 
 			socket.on("recieveMessage", async (payload) => {
 				addMessage(payload as Message);
@@ -83,12 +87,14 @@
 	let value: string = "";
 
 	const addMessage = async (data: Message) => {
-		let updated: MessageWithUser = data;
-		updated.user = await fetchUserData(updated.senderId);
+		messages.unshift(data);
 
-		messages.push(updated);
 		// reassign => https://stackoverflow.com/questions/70099100/how-would-i-make-an-each-loop-in-svelte-reactive
 		messages = messages;
+	};
+
+	const refreshMessages = (msgs: MessageWithUser[]) => {
+		return msgs.sort((a, b) => b.id - a.id);
 	};
 
 	const fetchMessages = async () => {
@@ -101,52 +107,43 @@
 			return;
 		}
 
-		socket.emit("sendMessage", value)
-		
+		socket.emit("sendMessage", value);
+
 		value = "";
-	}
+	};
 
 	const fetchUserData = async (userId: number) => {
-		try {
-			return (await api.get(`/users/${userId}`)).data;
-		} catch (e) {
-			return undefined;
-		}
-	}
+		return (await api.get(`/users/${userId}`)).data;
+	};
 </script>
 
 {#if isValid}
-	<Grid>
-		<Row>
-			<Column>
-				<h1>Chatroom - {roomData.name}</h1>
-			</Column>
+	<div class="information">
+		<h2>Chatroom - {roomData.name}</h2>
+		<h5>ID: {roomData.code}</h5>
+		<h5>Created at {moment(new Date(roomData.createdAt)).format("LLL")}</h5>
+		<h5>Owner: <a class="custom-hover" href={`/users/${ownerUsername}`}>{ownerUsername}</a></h5>
+	</div>
 
-			<Column>
-				<h3>ID: {roomData.code}</h3>
-			</Column>
+	<br class="split" />
 
-			<Column>
-				<h3>Created at {moment(new Date(roomData.createdAt)).format("LLL")}</h3>
-			</Column>
-		</Row>
-
-		<Row>
-			<a href={`/users/${ownerUsername}`}>
-				Owner: {ownerUsername}
-			</a>
-		</Row>
-
-		messages:
-
+	<div class="message-container">
 		{#each messages as message}
-			<MessageComponent message={message} />
+			{#await fetchUserData(message.senderId) then val}
+				<MessageComponent {message} sender={val} />
+			{/await}
 		{/each}
+	</div>
 
-		<TextInput placeholder="Enter message" on:keydown={(event) => {
+	<br />
+
+	<TextInput
+		placeholder="Enter message"
+		on:keydown={(event) => {
 			if (event.code == "Enter") submit();
-		}} bind:value/>
-	</Grid>
+		}}
+		bind:value
+	/>
 {:else}
 	<h3>Room with code <b>{roomData.code}</b> not found!</h3>
 	<br />
@@ -162,3 +159,27 @@
 	<br />
 	<a class="hover-href" href="/rooms"><h4>Return to room hub</h4></a>
 {/if}
+
+<style>
+	.information {
+		display: flex;
+		flex-direction: column;
+		column-gap: 20px;
+	}
+
+	.message-container {
+		display: flex;
+		flex-direction: column;
+		column-gap: 20px;
+		overflow: auto;
+		height: 600px;
+		width: auto;
+		scroll-behavior: smooth;
+		overflow-y: auto;
+		flex-flow: column-reverse;
+	}
+
+	.split {
+		line-height: 30px;
+	}
+</style>

@@ -1,22 +1,23 @@
 import {
 	Body,
 	Controller,
-	Get, HttpException,
+	Get,
+	HttpException,
 	NotFoundException,
 	Param,
-	Post, Session,
+	Post,
+	Session,
 	UnauthorizedException
 } from "@nestjs/common";
 import { MySession } from "../../context";
 import { LoginDTO } from "./dto/login.dto";
 import { SignUpDTO } from "./dto/signup.dto";
+import { JoinedRoomEntity } from "./joinedrooms.entity";
 import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
-	constructor(
-		private usersService: UsersService,
-	) {}
+	constructor(private usersService: UsersService) {}
 
 	@Get()
 	async findAll() {
@@ -24,7 +25,7 @@ export class UsersController {
 	}
 
 	@Get("/@me")
-	async me(@Session() session: MySession) {		
+	async me(@Session() session: MySession) {
 		if (session.userId) {
 			return this.usersService.getMyself(session.userId, session.id);
 		}
@@ -54,6 +55,47 @@ export class UsersController {
 		}
 
 		return this.usersService.getUserData(user);
+	}
+
+	@Post("/joinedRoom/:room")
+	async addToLog(@Param("room") room: string, @Session() session: MySession) {
+		if (!session.userId) {
+			throw new UnauthorizedException();
+		}
+
+		const entity = await this.usersService.getUserById(session.userId);
+		if (!entity) {
+			throw new UnauthorizedException();
+		}
+
+		const joinedRoom = await JoinedRoomEntity.findOne({
+			where: {
+				roomCode: room,
+				user: entity
+			}
+		});
+
+		if (joinedRoom) {
+			joinedRoom.time = new Date();
+			return await joinedRoom.save();
+		}
+
+		const create = new JoinedRoomEntity();
+		create.user = entity;
+		create.roomCode = room;
+		create.time = new Date();
+		return await create.save();
+	}
+
+	@Get("/joinedRoom/list")
+	async getPastRooms(@Session() session: MySession) {
+		const user = await this.usersService.getUserById(Number(session?.userId));
+		if (!user) {
+			console.log("unauth");
+			throw new UnauthorizedException();
+		}
+
+		return await this.usersService.getPastRooms(user);
 	}
 
 	@Post("/signup")

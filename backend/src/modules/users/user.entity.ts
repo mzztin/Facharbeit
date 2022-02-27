@@ -2,8 +2,11 @@ import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
-	Entity, PrimaryGeneratedColumn
+	Entity,
+	OneToMany,
+	PrimaryGeneratedColumn
 } from "typeorm";
+import { JoinedRoomEntity } from "./joinedrooms.entity";
 
 @Entity()
 export default class UserEntity extends BaseEntity {
@@ -18,4 +21,7 @@ export default class UserEntity extends BaseEntity {
 
 	@CreateDateColumn()
 	createdAt: Date;
+
+	@OneToMany(() => JoinedRoomEntity, (jr) => jr.user)
+	joinedRooms: JoinedRoomEntity[];
 }

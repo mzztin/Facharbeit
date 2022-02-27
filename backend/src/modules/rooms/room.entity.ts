@@ -26,7 +26,7 @@ export default class RoomEntity extends BaseEntity {
 	@Column("varchar")
 	code: string;
 
-	@ManyToMany(() => RoomMessageEntity, msg => msg.room, {
+	@ManyToMany(() => RoomMessageEntity, (msg) => msg.room, {
 		eager: true
 	})
 	@JoinTable()

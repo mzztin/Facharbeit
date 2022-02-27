@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
-import type { Load } from "@sveltejs/kit";
-import axios from "axios";
+	import { goto } from "$app/navigation";
+	import type { Load } from "@sveltejs/kit";
+	import axios from "axios";
 
 	let success = false;
 	let awaiting = true;
@@ -9,13 +10,15 @@ import axios from "axios";
 		try {
 			await axios.post("/users/logout");
 
-			return {
-				redirect: "/"
-			}
+			goto("/");
+			setTimeout(() => {
+				location.reload();
+			}, 100);
 		} catch (e) {
-			return {
-				redirect: "/"
-			}
+			goto("/");
+			setTimeout(() => {
+				location.reload();
+			}, 100);
 		}
-	}
+	};
 </script>
