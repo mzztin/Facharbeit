@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import axios from "axios";
-	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
@@ -20,9 +20,6 @@
 				username,
 				password
 			});
-
-			console.log("status", res.status);
-			console.log("data", await res.data);
 
 			if (res.status === 201) {
 				success = true;

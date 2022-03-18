@@ -5,8 +5,6 @@ export class StoreService {
 	private sessionStore: Map<string, number | undefined> = new Map();
 
 	public addSession(sessionId: string, userId: number): void {
-		this.dump();
-
 		this.sessionStore.set(sessionId, userId);
 	}
 
@@ -16,9 +14,5 @@ export class StoreService {
 
 	public removeSession(sessionId: string): void {
 		this.sessionStore.set(sessionId, undefined);
-	}
-
-	public dump() {
-		console.log(this.sessionStore.values());
 	}
 }

@@ -9,8 +9,6 @@
 	const createdAt = new Date(message.createdAt);
 	let user: User = message.user;
 
-	console.log({ user, userM: message.user });
-
 	const isToday = () => {
 		const now = new Date();
 		if (

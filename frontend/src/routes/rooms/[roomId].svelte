@@ -50,7 +50,6 @@
 			msgs = msgs.sort((a, b) => a.id - b.id);
 
 			for (const msg of msgs) {
-				console.log(JSON.stringify(msg));
 				addMessage(msg);
 			}
 
@@ -63,10 +62,6 @@
 			});
 
 			socket.emit("joinRoom", roomData.code);
-
-			socket.on("userJoined", async (payload) => {
-				console.log(payload);
-			});
 
 			socket.on("reload_page", () => {
 				goto(`/rooms/${roomData.code}`);

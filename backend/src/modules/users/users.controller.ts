@@ -91,7 +91,6 @@ export class UsersController {
 	async getPastRooms(@Session() session: MySession) {
 		const user = await this.usersService.getUserById(Number(session?.userId));
 		if (!user) {
-			console.log("unauth");
 			throw new UnauthorizedException();
 		}
 

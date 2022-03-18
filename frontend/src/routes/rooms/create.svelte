@@ -1,6 +1,6 @@
 <script lang="ts">
 	import axios from "axios";
-	import { Button, TextInput } from "carbon-components-svelte";
+	import { Button,TextInput } from "carbon-components-svelte";
 
 	let created: boolean = false;
 	let code: string | undefined = undefined;
@@ -44,6 +44,7 @@
 	<h2>Successfully created a chatroom</h2>
 
 	<h5>Chatroom Code: {code ?? "N.A."}</h5>
+	<h5><a class="custom-hover" href={"/rooms/" + code}>Join room</a></h5>
 {:else if loading}
 	<h2>Creating room...</h2>
 {:else if error}
