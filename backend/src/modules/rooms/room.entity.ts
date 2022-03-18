@@ -32,7 +32,7 @@ export default class RoomEntity extends BaseEntity {
 	@JoinTable()
 	messages: RoomMessageEntity[];
 
-	async genCodeAndSave() {
+	async generateCodeAndSave() {
 		let code = Math.floor(Math.random() * 999999) + 100000;
 
 		while ((await RoomEntity.find({ where: { code: code.toString() } })).length !== 0) {

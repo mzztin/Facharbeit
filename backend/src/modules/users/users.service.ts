@@ -70,6 +70,16 @@ export class UsersService {
 		return this.hashService.encryptSessionId(sessionId);
 	}
 
+	async safeSession(session: MySession, user: UserEntity) {
+		this.destroySession(session);
+		this.setSessionAndSave(session, user);
+		this.addSessionToStore(session.id, user.id);
+	}
+
+	async addUserToSession(session: MySession, user: UserEntity) {
+		session.userId = user.id;
+	}
+
 	async getPastRooms(user: UserEntity) {
 		const joinedRooms = await JoinedRoomEntity.find({
 			where: {

@@ -20,7 +20,7 @@ export class RoomsService {
 		room.messages = [];
 		room.createdAt = new Date();
 
-		return await room.genCodeAndSave();
+		return await room.generateCodeAndSave();
 	}
 
 	async isValidCode(code: string) {

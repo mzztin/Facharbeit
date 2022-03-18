@@ -102,11 +102,7 @@ export class UsersController {
 	async signup(@Body() { username, password }: SignUpDTO, @Session() session: MySession) {
 		try {
 			const user = await this.usersService.createUser(username, password);
-
-			this.usersService.destroySession(session);
-			this.usersService.setSessionAndSave(session, user);
-			this.usersService.addSessionToStore(session.id, user.id);
-
+			this.usersService.safeSession(session, user);
 			return true;
 		} catch (e) {
 			return false;
@@ -128,7 +124,7 @@ export class UsersController {
 		const user = await this.usersService.validateLogin(body.username, body.password);
 
 		this.usersService.addSessionToStore(session.id, user.id);
-		session.userId = user.id;
+		this.usersService.addUserToSession(session, user);
 
 		return true;
 	}

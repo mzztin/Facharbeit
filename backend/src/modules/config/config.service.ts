@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
 import { parse } from "dotenv";
+import { readFileSync } from "fs";
 
 interface Config {
 	[key: string]: string;

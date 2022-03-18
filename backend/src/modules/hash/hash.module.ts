@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
-import { HashService } from "./hash.service";
 import { ConfigModule } from "../config/config.module";
 import { ConfigService } from "../config/config.service";
+import { HashService } from "./hash.service";
 
 @Module({
 	imports: [ConfigModule],
@@ -9,7 +9,7 @@ import { ConfigService } from "../config/config.service";
 		HashService,
 		{
 			provide: ConfigService,
-			useValue: new ConfigService("misc.env")
+			useValue: new ConfigService(".env")
 		}
 	]
 })
