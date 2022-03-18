@@ -1,41 +1,40 @@
 <script lang="ts" context="module">
 	import { goto } from "$app/navigation";
 	import MessageComponent from "$lib/components/Message.svelte";
-	import type { Message, MessageWithUser, Room } from "$lib/types/rooms";
+	import type { Message,Room } from "$lib/types/rooms";
 	import api from "$lib/utils/cached-api";
 	import { Getter } from "$lib/utils/store";
 	import type { Load } from "@sveltejs/kit";
 	import axios from "axios";
 	import { TextInput } from "carbon-components-svelte";
 	import moment from "moment";
-	import { io, Socket } from "socket.io-client";
+	import { io,Socket } from "socket.io-client";
+	import { onMount } from "svelte";
 
 	export const load: Load = async ({ page }) => {
 		const roomId = page.params.roomId;
-		const roomData = await axios.get(`/rooms/${roomId}`);
+		try {
+			const roomData = await axios.get(`/rooms/${roomId}`);
 
-		if (roomData.status >= 400) {
+			if (roomData.status >= 400) {
+				goto("/rooms/not_found")
+			}
+
+			axios.post(`/users/joinedRoom/${roomId}`);
+
 			return {
 				props: {
-					isValid: false
-				}
-			};
+					roomData: roomData.data,				}
+};
+		} catch (e) {
+			goto("/rooms/not_found")
 		}
 
-		axios.post(`/users/joinedRoom/${roomId}`);
-
-		return {
-			props: {
-				roomData: roomData.data,
-				isValid: true
-			}
-		};
 	};
 </script>
 
 <script lang="ts">
 	export let roomData: Room;
-	export let isValid: boolean = undefined;
 
 	const socketURL = `http://localhost:4002`;
 	let socket: Socket;
@@ -43,9 +42,8 @@
 	let messages: Message[] = [];
 	let ownerUsername: string | undefined;
 
-	if (isValid) {
-		(async () => {
-			const owner = await axios.get(`/users/${roomData.ownerId}}`);
+	onMount(async () => {
+		const owner = await axios.get(`/users/${roomData.ownerId}}`);
 			ownerUsername = owner.data.username;
 
 			let msgs = await fetchMessages();
@@ -81,10 +79,9 @@
 			socket.on("recieveMessage", async (payload) => {
 				addMessage(payload as Message);
 			});
-		})();
-	}
-
-	let value: string = "";
+	});
+	
+	let textBoxValue: string = "";
 
 	const addMessage = async (data: Message) => {
 		messages.unshift(data);
@@ -93,23 +90,19 @@
 		messages = messages;
 	};
 
-	const refreshMessages = (msgs: MessageWithUser[]) => {
-		return msgs.sort((a, b) => b.id - a.id);
-	};
-
 	const fetchMessages = async () => {
 		return (await axios.get(`/rooms/${roomData.code}/messages`)).data as Message[];
 	};
 
 	const submit = async () => {
-		if (value == "" || value == undefined) {
-			value = "";
+		if (textBoxValue == "" || textBoxValue == undefined) {
+			textBoxValue = "";
 			return;
 		}
 
-		socket.emit("sendMessage", value);
+		socket.emit("sendMessage", textBoxValue);
 
-		value = "";
+		textBoxValue = "";
 	};
 
 	const fetchUserData = async (userId: number) => {
@@ -117,7 +110,6 @@
 	};
 </script>
 
-{#if isValid}
 	<div class="information">
 		<h2>Chatroom - {roomData.name}</h2>
 		<h5>ID: {roomData.code}</h5>
@@ -142,23 +134,9 @@
 		on:keydown={(event) => {
 			if (event.code == "Enter") submit();
 		}}
-		bind:value
+		bind:value={textBoxValue}
 	/>
-{:else}
-	<h3>Room with code <b>{roomData.code}</b> not found!</h3>
-	<br />
 
-	<h3>Click one of these links to return:</h3>
-	<br />
-
-	<a class="hover-href" href="/"><h4>Return to homepage</h4></a>
-	<br />
-
-	<h5>OR</h5>
-
-	<br />
-	<a class="hover-href" href="/rooms"><h4>Return to room hub</h4></a>
-{/if}
 
 <style>
 	.information {
