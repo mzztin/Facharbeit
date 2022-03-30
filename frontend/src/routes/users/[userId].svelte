@@ -1,10 +1,10 @@
 <script lang="ts" context="module">
-    import { goto } from "$app/navigation";
-    import type { User } from "$lib/types/user";
-    import { Getter } from "$lib/utils/store";
-    import type { Load } from "@sveltejs/kit";
-    import axios from "axios";
-    import moment from "moment";
+	import { goto } from "$app/navigation";
+	import type { User } from "$lib/types/user";
+	import { Getter } from "$lib/utils/store";
+	import type { Load } from "@sveltejs/kit";
+	import axios from "axios";
+	import moment from "moment";
 
 	export const load: Load = async ({ page }) => {
 		const userId = page.params.userId;
@@ -19,7 +19,7 @@
 				}
 			};
 		} catch (e) {
-            goto("/users/not_found")
+			goto("/users/not_found");
 		}
 	};
 </script>
@@ -28,39 +28,35 @@
 	export let user: User;
 
 	const isMe = user.username == Getter.getUsername();
-    const infoText = isMe ? "(you)" : ""
+	const infoText = isMe ? "(you)" : "";
 </script>
 
-
 <main>
-    <h3>User Profile</h3>
+	<h3>User Profile</h3>
 
+	<div class="username">
+		<img src={user.avatar} alt="nf" />
+		<h4>Username: {user.username} {infoText}</h4>
+	</div>
 
-    <div class="username">
-        <img src={user.avatar} alt="nf" />
-        <h4>Username: {user.username} {infoText}</h4>
-    </div>
-    
-    
-    <h5>Joined at: {moment(new Date(user.createdAt)).format("LLL")}</h5>
-    
-    <h6>ID: {user.id}</h6>
+	<h5>Joined at: {moment(new Date(user.createdAt)).format("LLL")}</h5>
+
+	<h6>ID: {user.id}</h6>
 </main>
 
 <style>
-    main {
-        gap: 12px;
-    }
-    
-    .username {
-        display: flex;
-        flex-direction: row;
-    }
+	main {
+		gap: 12px;
+	}
 
+	.username {
+		display: flex;
+		flex-direction: row;
+	}
 
-    img {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-    }
+	img {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+	}
 </style>

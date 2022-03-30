@@ -4,5 +4,3 @@ export type User = {
 	createdAt: Date;
 	avatar: string;
 };
-
-export type MeUser = {};

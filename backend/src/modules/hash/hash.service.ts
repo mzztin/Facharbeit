@@ -7,13 +7,7 @@ export class HashService {
 	constructor(private config: ConfigService) {}
 
 	hashPassword(password: string): string {
-		return (
-			SHA256(
-				this.getSalt() +
-					password +
-					"string"
-			) + ""
-		).toString();
+		return (SHA256(this.getSalt() + password + "string") + "").toString();
 	}
 
 	matches(hash: string, haystack: string): boolean {
@@ -33,6 +27,6 @@ export class HashService {
 	}
 
 	private getSalt() {
-		return this.config.get("SALT") ?? "not found";	
+		return this.config.get("SALT") ?? "not found";
 	}
 }

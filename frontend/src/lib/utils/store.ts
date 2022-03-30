@@ -8,7 +8,7 @@ let username = writable();
 
 export class Getter {
 	static getUsername(): Either<string> {
-		if (get(username) == undefined) {
+		if (get(username) === undefined) {
 			return undefined;
 		}
 
@@ -16,7 +16,7 @@ export class Getter {
 	}
 
 	static getSessionID(): Either<string> {
-		if (get(sessionId) == undefined) {
+		if (get(sessionId) === undefined) {
 			return undefined;
 		}
 
@@ -24,7 +24,7 @@ export class Getter {
 	}
 
 	static getLoggedIn(_default: boolean = false): boolean {
-		if (get(loggedIn) == undefined) {
+		if (get(loggedIn) === undefined) {
 			return _default;
 		}
 

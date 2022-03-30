@@ -1,6 +1,6 @@
 <script lang="ts">
 	import axios from "axios";
-	import { Button,TextInput } from "carbon-components-svelte";
+	import { Button, TextInput } from "carbon-components-svelte";
 
 	let created: boolean = false;
 	let code: string | undefined = undefined;

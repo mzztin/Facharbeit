@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { MessageWithUser } from "$lib/types/rooms";
+	import type { Message } from "$lib/types/rooms";
 	import type { User } from "$lib/types/user";
 	import moment from "moment";
 
-	export let message: MessageWithUser;
+	export let message: Message;
 	export let sender: User;
 
 	const createdAt = new Date(message.createdAt);
-	let user: User = message.user;
 
 	const isToday = () => {
 		const now = new Date();

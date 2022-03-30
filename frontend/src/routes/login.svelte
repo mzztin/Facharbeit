@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import axios from "axios";
-	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
+	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
