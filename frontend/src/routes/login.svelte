@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import axios from "axios";
-	import { Button, PasswordInput, TextInput } from "carbon-components-svelte";
+	import { Button,PasswordInput,TextInput } from "carbon-components-svelte";
 
 	let username: string;
 	let password: string;
@@ -27,7 +27,6 @@
 				setTimeout(() => {
 					location.reload();
 				}, 100);
-				return;
 			}
 
 			if (res.status === 400 || res.status === 401) {
@@ -50,6 +49,8 @@
 	<a href="/">
 		<h4>Return to homepage</h4>
 	</a>
+{:else if error}
+	<h4>Could not login</h4>
 {:else}
 	<TextInput
 		bind:value={username}
@@ -61,12 +62,6 @@
 	<PasswordInput bind:value={password} labelText="Password" placeholder="Enter password" />
 
 	<br />
-
-	{#if error}
-		<h4>Could not login</h4>
-
-		<br />
-	{/if}
 
 	<Button class="space-y-3" on:click={handleLogin} kind="tertiary">Login</Button>
 {/if}

@@ -1,5 +1,4 @@
 import { ConflictException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { Socket } from "socket.io";
 import { MySession } from "src/context";
 import { HashService } from "../hash/hash.service";
 import RoomEntity from "../rooms/room.entity";
@@ -170,15 +169,5 @@ export class UsersService {
 		}
 
 		return user;
-	}
-
-	async getSocketUserByCookie(socket: Socket) {
-		const cookie = socket.handshake.headers.cookie;
-
-		if (!cookie) {
-			return null;
-		}
-
-		return "TODO";
 	}
 }
