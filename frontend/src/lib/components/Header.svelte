@@ -1,27 +1,12 @@
 <script lang="ts">
 	import { Getter } from "$lib/utils/store";
-	import {
-		Header,
-		HeaderAction,
-		HeaderNav,
-		HeaderNavItem,
-		HeaderPanelDivider,
-		HeaderPanelLink,
-		HeaderPanelLinks,
-		HeaderUtilities
-	} from "carbon-components-svelte";
+	import { Header,HeaderAction,HeaderNav,HeaderNavItem,HeaderPanelDivider,HeaderPanelLink,HeaderPanelLinks,HeaderUtilities } from "carbon-components-svelte";
 	import { expoIn } from "svelte/easing";
-
 	let isOpen = false;
-
 	let username = Getter.getUsername();
 	let isLoggedIn = Getter.getLoggedIn() ?? false;
 
-	const headerTransition = {
-		duration: 750,
-		delay: 100,
-		easing: expoIn
-	};
+	const headerTransition = { duration: 750,delay: 100,easing: expoIn };
 </script>
 
 <Header company="Chat" platformName="Application">

@@ -1,24 +1,11 @@
-import {
-	Body,
-	Controller,
-	Get,
-	HttpException,
-	NotFoundException,
-	Param,
-	Post,
-	Session,
-	UnauthorizedException
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpException, NotFoundException, Param, Post, Session, UnauthorizedException } from "@nestjs/common";
 import { MySession } from "../../context";
 import { LoginDTO } from "./dto/login.dto";
 import { SignUpDTO } from "./dto/signup.dto";
-import { JoinedRoomEntity } from "./joinedrooms.entity";
 import { UsersService } from "./users.service";
-
 @Controller("users")
 export class UsersController {
 	constructor(private usersService: UsersService) {}
-
 	@Get()
 	async findAll() {
 		return await this.usersService.mapAllUsers();
@@ -51,36 +38,14 @@ export class UsersController {
 	@Post("/joinedRoom/:room")
 	async addToLog(@Param("room") room: string, @Session() session: MySession) {
 		if (!session.userId) throw new UnauthorizedException();
-
-		const entity = await this.usersService.getUserById(session.userId);
-		if (!entity) throw new UnauthorizedException();
 		
-
-		const joinedRoom = await JoinedRoomEntity.findOne({
-			where: {
-				roomCode: room,
-				user: entity
-			}
-		});
-
-		if (joinedRoom) {
-			joinedRoom.time = new Date();
-			return await joinedRoom.save();
-		}
-
-		const create = new JoinedRoomEntity();
-		create.user = entity;
-		create.roomCode = room;
-		create.time = new Date();
-		return await create.save();
+		return this.usersService.addToLog(session.userId, room);
 	}
 
 	@Get("/joinedRoom/list")
 	async getPastRooms(@Session() session: MySession) {
 		const user = await this.usersService.getUserById(Number(session?.userId));
-		if (!user) {
-			throw new UnauthorizedException();
-		}
+		if (!user) throw new UnauthorizedException();
 
 		return await this.usersService.getPastRooms(user);
 	}
@@ -89,7 +54,7 @@ export class UsersController {
 	async signup(@Body() { username, password }: SignUpDTO, @Session() session: MySession) {
 		try {
 			const user = await this.usersService.createUser(username, password);
-			this.usersService.safeSession(session, user);
+			this.usersService.saveSession(session, user);
 			return true;
 		} catch (e) {
 			return false;

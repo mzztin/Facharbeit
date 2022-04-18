@@ -12,44 +12,22 @@
 
 	export const load: Load = async () => {
 		try {
-			const res = await axios.get("/users/@me", {
-				method: "GET"
-			});
-
+			const res = await axios.get("/users/@me", { method: "GET" });
 			const data = res.data;
-
-			if (res.status == 401) {
-				return {
-					props: {
-						isLoggedIn: false
-					}
-				};
-			}
+			if (res.status == 401) return { props: { isLoggedIn: false } };
 
 			return {
-				props: {
-					isLoggedIn: true,
-					username: data.username,
-					sessionId: data.sessionId
-				}
+				props: { isLoggedIn: true, username: data.username, sessionId: data.sessionId}
 			};
 		} catch (e) {
-			return {
-				props: {
-					isLoggedIn: false,
-					username: undefined,
-					sessionId: undefined
-				}
-			};
+			return { props: { isLoggedIn: false, username: undefined, sessionId: undefined } };
 		}
 	};
 </script>
 
 <script lang="ts">
 	export let username: string | undefined;
-
 	export let sessionId: string | undefined;
-
 	export let isLoggedIn: boolean;
 
 	if (username) store.username.set(username);
@@ -58,7 +36,6 @@
 </script>
 
 <Header />
-
 <Content>
 	<slot />
 </Content>

@@ -8,68 +8,49 @@ import UserEntity from "./user.entity";
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly hashService: HashService, private storeService: StoreService, private userService: UsersService) {}
+	constructor(private readonly hashService: HashService, private storeService: StoreService) {}
 
 	async existsUser(username: string): Promise<boolean> {
 		const user = await this.getUser(username);
 		if (user) return true;
-
 		return false;
 	}
 
 	async createUser(username: string, password: string): Promise<UserEntity> {
-		if (await this.existsUser(username)) {
-			throw new ConflictException("User with given username already exists");
-		}
-
+		if (await this.existsUser(username)) throw new ConflictException("User with given username already exists");
 		const user = new UserEntity();
 		user.username = username;
 		user.password = this.hashService.hashPassword(password);
 		user.createdAt = new Date();
-
 		return user.save();
 	}
 
 	async mapAllUsers() {
 		return (await this.getUsers()).map((user) => {
 			const { password, ...userData } = user;
-
-			const result = {
-				...userData,
-				avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
-			};
-
-			return result;
+			return { ...userData, avatar: this.getAvatar(user.id )};
 		});
 	}
 
 	async getMyself(userId: number, sessionId: string) {
 		const user = await this.getUserById(userId);
-
-		if (!user) {
-			throw new UnauthorizedException("You are not logged in");
-		}
-
+		if (!user) throw new UnauthorizedException("You are not logged in");
 		const encryptedSID = await this.addSessionToStore(sessionId, userId);
-
 		const { sentMessages, recievedMessages, password, ...result }: any = user;
-
 		result["sessionId"] = encryptedSID;
 		result["avatar"] = this.getAvatar(userId);
 
 		return result;
 	}
 
-	getAvatar(userId: number): string {
-		return `https://avatars.dicebear.com/api/adventurer-neutral/css33d${userId}.svg`;
-	}
+	getAvatar(userId: number): string { return `https://avatars.dicebear.com/api/adventurer-neutral/css33d${userId}.svg`; }
 
 	async addSessionToStore(sessionId: string, userId: number) {
 		this.storeService.addSession(sessionId, userId);
 		return this.hashService.encryptSessionId(sessionId);
 	}
 
-	async safeSession(session: MySession, user: UserEntity) {
+	async saveSession(session: MySession, user: UserEntity) {
 		this.destroySession(session);
 		this.setSessionAndSave(session, user);
 		this.addSessionToStore(session.id, user.id);
@@ -80,23 +61,10 @@ export class UsersService {
 	}
 
 	async getPastRooms(user: UserEntity) {
-		const joinedRooms = await JoinedRoomEntity.find({
-			where: {
-				user
-			}
-		});
-
+		const joinedRooms = await JoinedRoomEntity.find({ where: { user }});
 		const rooms: RoomEntity[] = [];
 
-		for (const room of joinedRooms) {
-			rooms.push(
-				await RoomEntity.findOneOrFail({
-					where: {
-						code: room.roomCode
-					}
-				})
-			);
-		}
+		for (const room of joinedRooms) rooms.push(await RoomEntity.findOneOrFail({where: {code: room.roomCode}}));
 
 		return rooms.map((room) => {
 			let { messages, ...rest }: any = room;
@@ -107,33 +75,19 @@ export class UsersService {
 
 	async getUserById(id: number) {
 		const user = UserEntity.findOne(id);
-
-		if (!user) {
-			return undefined;
-		}
-
+		if (!user) return undefined;
 		return user;
 	}
 
 	getUserData(user: UserEntity) {
 		const { password, ...userData } = user;
-
-		const result = {
-			...userData,
-			avatar: `https://avatars.dicebear.com/api/adventurer-neutral/css33d${user.id}.svg`
-		};
-
+		const result = {...userData,avatar: this.getAvatar(user.id)};
 		return result;
 	}
 
 	destroySession(session: MySession) {
 		this.storeService.removeSession(session.id);
-
-		session.destroy((err) => {
-			if (err) {
-				Logger.warn(`Could not destroy session`);
-			}
-		});
+		session.destroy((err) => { if (err) Logger.warn(`Could not destroy session (ID: ${session.id})`); });
 	}
 
 	setSessionAndSave(session: MySession, user: UserEntity) {
@@ -142,13 +96,8 @@ export class UsersService {
 	}
 
 	async getUser(username: string): Promise<UserEntity | undefined> {
-		const users = await UserEntity.createQueryBuilder("user")
-			.where("LOWER(user.username) = LOWER(:username)", { username })
-			.getMany();
-
-		if (users.length == 0) {
-			return undefined;
-		}
+		const users = await UserEntity.createQueryBuilder("user").where("LOWER(user.username) = LOWER(:username)", { username }).getMany();
+		if (users.length == 0) return undefined;
 
 		return users[0];
 	}
@@ -160,19 +109,14 @@ export class UsersService {
 	async validateLogin(username: string, password: string) {
 		const user = await this.getUser(username);
 
-		if (!user) {
-			throw new UnauthorizedException("User does not exist");
-		}
-
-		if (!this.hashService.matches(user.password, password)) {
-			throw new UnauthorizedException("Password does not match with user");
-		}
-
+		if (!user) throw new UnauthorizedException("User does not exist");
+		if (!this.hashService.matches(user.password, password)) throw new UnauthorizedException("Password does not match with user");
+	
 		return user;
 	}
 
 	async addToLog(userId: number, code: string) {
-		const entity = await this.userService.getUserById(userId);
+		const entity = await this.getUserById(userId);
 		if (!entity) throw new UnauthorizedException();
 
 		const joinedRoom = await JoinedRoomEntity.findOne({ where: { roomCode: code, user: entity } });
