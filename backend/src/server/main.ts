@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { IoAdapter } from "@nestjs/platform-socket.io";
+import { join } from "path";
 import "reflect-metadata";
 import { AppModule } from "./modules/app/app.module";
 
@@ -8,6 +9,7 @@ import { AppModule } from "./modules/app/app.module";
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 	app.set("trust proxy", 1);
 	app.useWebSocketAdapter(new IoAdapter(app));
+	app.useStaticAssets(join(__dirname, "..", ""))
 
 	app.enableCors({
 		origin: [

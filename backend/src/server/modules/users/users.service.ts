@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { MySession } from "src/context";
+import { MySession } from "src/server/context";
 import { HashService } from "../hash/hash.service";
 import RoomEntity from "../rooms/room.entity";
 import { StoreService } from "../store/store.service";
