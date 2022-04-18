@@ -1,3 +1,0 @@
-# Chat Application
-
-### Frontend

@@ -1,9 +1,0 @@
-a.custom-hover {
-	text-decoration: none;
-	color: inherit;
-}
-
-a.custom-hover:hover {
-	text-decoration: underline;
-	color: crimson;
-}
