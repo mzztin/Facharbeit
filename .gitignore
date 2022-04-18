@@ -1,1 +1,6 @@
-backend/c.py
+.DS_Store
+node_modules
+/.svelte-kit
+/package
+yarn.lock
+pnpm-lock.yaml
