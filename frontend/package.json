@@ -1,0 +1,41 @@
+{
+	"name": "chat-app",
+	"author": "mzztin",
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"build": "svelte-kit build",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+		"dev": "svelte-kit dev --host",
+		"format": "prettier --write --plugin-search-dir=. .",
+		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
+		"preview": "svelte-kit preview"
+	},
+	"devDependencies": {
+		"@sveltejs/kit": "1.0.0-next.201",
+		"@typescript-eslint/eslint-plugin": "^5.12.1",
+		"@typescript-eslint/parser": "^5.12.1",
+		"carbon-components-svelte": "0.50.2",
+		"carbon-icons-svelte": "^10.44.4",
+		"carbon-preprocess-svelte": "^0.6.0",
+		"eslint": "^8.10.0",
+		"eslint-config-prettier": "^8.4.0",
+		"eslint-plugin-svelte3": "^3.4.1",
+		"moment": "^2.29.1",
+		"path": "^0.12.7",
+		"prettier": "~2.5.1",
+		"prettier-plugin-svelte": "^2.6.0",
+		"sass": "^1.49.9",
+		"svelte": "^3.46.4",
+		"svelte-check": "^2.4.5",
+		"svelte-preprocess": "^4.10.4",
+		"tslib": "^2.3.1",
+		"typescript": "^4.5.5"
+	},
+	"dependencies": {
+		"axios": "^0.24.0",
+		"axios-cache-adapter": "^2.7.3",
+		"socket.io-client": "4.4.0"
+	}
+}

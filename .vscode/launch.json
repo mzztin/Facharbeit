@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "command": "npm run start:dev",
+            "name": "launch backend (dev)",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/backend",
+            "type": "node-terminal"
+        },
+        {
+            "command": "npm run dev",
+            "name": "launch frontend (dev)",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/frontend",
+            "type": "node-terminal"
+        },
+    
+    ]
+}

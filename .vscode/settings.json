@@ -1,3 +1,8 @@
 {
-    "editor.fontSize": 7
+    "files.autoSave": "afterDelay",
+    "editor.fontFamily": "\"Jetbrains Mono\", Consolas, 'Courier New', monospace",
+    "editor.fontSize": 7,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    }
 }
