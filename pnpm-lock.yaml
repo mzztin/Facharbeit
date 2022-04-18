@@ -48,7 +48,6 @@ specifiers:
   typeorm: ^0.2.41
   typescript: ^4.5.5
   webpack: 5.0.0
-  ws: ^8.4.2
 
 dependencies:
   '@nestjs/common': 8.2.5_e2dd7264172553abc41c1a07952dd8ca
@@ -71,7 +70,6 @@ dependencies:
   rxjs: 7.5.2
   socket.io: 4.4.0
   typeorm: 0.2.41
-  ws: 8.4.2
 
 devDependencies:
   '@nestjs/cli': 8.2.0_eslint@8.8.0
@@ -6341,19 +6339,6 @@ packages:
 
   /ws/8.2.3:
     resolution: {integrity: sha512-wBuoj1BDpC6ZQ1B7DWQBYVLphPWkm8i9Y0/3YdHjHKHiohOJ1ws+3OccDWtH+PoC9DZD5WOTrJvNbWvjS6JWaA==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
-
-  /ws/8.4.2:
-    resolution: {integrity: sha512-Kbk4Nxyq7/ZWqr/tarI9yIt/+iNNFOjBXEWgTb4ydaNHBNGgvf2QHbS9fdfsndfjFlFwEd4Al+mw83YkaD10ZA==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
