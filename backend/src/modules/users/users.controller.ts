@@ -26,47 +26,35 @@ export class UsersController {
 
 	@Get("/@me")
 	async me(@Session() session: MySession) {
-		if (session.userId) {
-			return this.usersService.getMyself(session.userId, session.id);
-		}
-
+		if (session.userId) return this.usersService.getMyself(session.userId, session.id);
 		throw new UnauthorizedException("You are not logged in");
 	}
 
 	@Get("/:username")
 	async findOneByUsername(@Param("username") username: string) {
-		if (parseInt(username)) {
-			return this.findOne(parseInt(username));
-		}
+		if (parseInt(username)) return this.findOne(parseInt(username)); // when username nummer ist = ID
 
 		const user = await this.usersService.getUser(username);
-		if (!user) {
-			throw new NotFoundException("User with given username not found");
-		}
-
+		if (!user) throw new NotFoundException("User with given username not found");
+	
 		return this.usersService.getUserData(user);
 	}
 
 	@Get("/:id")
 	async findOne(@Param("id") id: number) {
 		const user = await this.usersService.getUserById(id);
-		if (!user) {
-			throw new NotFoundException("User with given ID not found");
-		}
+		if (!user) throw new NotFoundException("User with given ID not found");
 
 		return this.usersService.getUserData(user);
 	}
 
 	@Post("/joinedRoom/:room")
 	async addToLog(@Param("room") room: string, @Session() session: MySession) {
-		if (!session.userId) {
-			throw new UnauthorizedException();
-		}
+		if (!session.userId) throw new UnauthorizedException();
 
 		const entity = await this.usersService.getUserById(session.userId);
-		if (!entity) {
-			throw new UnauthorizedException();
-		}
+		if (!entity) throw new UnauthorizedException();
+		
 
 		const joinedRoom = await JoinedRoomEntity.findOne({
 			where: {

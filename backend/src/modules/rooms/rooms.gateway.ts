@@ -4,36 +4,20 @@
  *
  */
 import { Logger } from "@nestjs/common";
-import {
-	OnGatewayConnection,
-	OnGatewayDisconnect,
-	OnGatewayInit,
-	SubscribeMessage,
-	WebSocketGateway,
-	WebSocketServer
-} from "@nestjs/websockets";
+import {OnGatewayConnection,OnGatewayDisconnect,OnGatewayInit,SubscribeMessage,WebSocketGateway,WebSocketServer} from "@nestjs/websockets";
 import "reflect-metadata";
 import { Server, Socket } from "socket.io";
 import { HashService } from "../hash/hash.service";
 import { StoreService } from "../store/store.service";
 import { RoomsService } from "./rooms.service";
 
-@WebSocketGateway(4002, {
-	cors: {
-		origin: "*"
-	},
-	serveClient: true
-})
+@WebSocketGateway(4002, { cors: { origin: "*" }, serveClient: true })
 export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 	@WebSocketServer() server: Server;
 
 	private logger = new Logger("MessagesGateaway");
 
-	public constructor(
-		private roomsService: RoomsService,
-		private hashService: HashService,
-		private storeService: StoreService
-	) {}
+	public constructor(private roomsService: RoomsService, private hashService: HashService, private storeService: StoreService) {}
 
 	afterInit(_server: any) {
 		this.logger.log("Message Gateaway has been initalized");
@@ -45,9 +29,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
 		for (const stuff in [roomId, encryptedSessionId]) {
 			if (typeof stuff !== "string" || typeof stuff == "undefined") {
-				this.logger.warn(
-					`Client ${client.id} disconnected, Reason: Invalid session or room id`
-				);
+				this.logger.warn(`Client ${client.id} disconnected, Reason: Invalid session or room id`);
 				return this.roomsService.disconnect(client);
 			}
 		}
@@ -83,19 +65,12 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
 	@SubscribeMessage("joinRoom")
 	async joinRoom(client: Socket, payload: string) {
-		if (client.data.roomId === payload) {
-			this.server.to(client.data.roomId).emit("userJoined", client.data.userId);
-		}
+		if (client.data.roomId === payload) this.server.to(client.data.roomId).emit("userJoined", client.data.userId);
 	}
 
 	@SubscribeMessage("sendMessage")
 	async sendMessage(client: Socket, payload: string) {
-		const message = await this.roomsService.createMessage(
-			client.data.userId,
-			String(payload),
-			client.data.roomId
-		);
-
+		const message = await this.roomsService.createMessage( client.data.userId, String(payload), client.data.roomId);
 		this.server.to(client.data.roomId).emit("recieveMessage", message);
 	}
 }

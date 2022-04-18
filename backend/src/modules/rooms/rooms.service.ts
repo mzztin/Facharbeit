@@ -6,11 +6,7 @@ import RoomMessageEntity from "./room.message.entity";
 @Injectable()
 export class RoomsService {
 	async getOwnRooms(userId: number): Promise<RoomEntity[]> {
-		return await RoomEntity.find({
-			where: {
-				ownerId: userId
-			}
-		});
+		return await RoomEntity.find({ where: { ownerId: userId } });
 	}
 
 	async createRoom(name: string, ownerId: number) {
@@ -19,7 +15,6 @@ export class RoomsService {
 		room.ownerId = ownerId;
 		room.messages = [];
 		room.createdAt = new Date();
-
 		return await room.generateCodeAndSave();
 	}
 
@@ -42,11 +37,7 @@ export class RoomsService {
 		message.createdAt = new Date();
 		await message.save();
 
-		let room = await RoomEntity.findOne({
-			where: {
-				code: roomCode
-			}
-		});
+		let room = await RoomEntity.findOne({ where: { code: roomCode }});
 
 		if (!room) {
 			Logger.error(`Room with code ${roomCode} not found`);
@@ -71,26 +62,18 @@ export class RoomsService {
 				code
 			}
 		});
-
 		if (!room) {
 			throw new BadRequestException("Room with id not found");
 		}
-
 		if (!room.messages) {
 			room.messages = [];
 			await room.save();
 		}
-
 		return room.messages;
 	}
 
 	async getRoomDataByCode(code: string) {
-		const room = await RoomEntity.findOne({
-			where: {
-				code
-			}
-		});
-
+		const room = await RoomEntity.findOne({ where: { code } });
 		if (!room) throw new NotFoundException("room not found");
 
 		const { messages, ...result } = room;

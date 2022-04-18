@@ -8,7 +8,7 @@ import UserEntity from "./user.entity";
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly hashService: HashService, private storeService: StoreService) {}
+	constructor(private readonly hashService: HashService, private storeService: StoreService, private userService: UsersService) {}
 
 	async existsUser(username: string): Promise<boolean> {
 		const user = await this.getUser(username);
@@ -169,5 +169,23 @@ export class UsersService {
 		}
 
 		return user;
+	}
+
+	async addToLog(userId: number, code: string) {
+		const entity = await this.userService.getUserById(userId);
+		if (!entity) throw new UnauthorizedException();
+
+		const joinedRoom = await JoinedRoomEntity.findOne({ where: { roomCode: code, user: entity } });
+
+		if (joinedRoom) {
+			joinedRoom.time = new Date();
+			return await joinedRoom.save();
+		}
+
+		const create = new JoinedRoomEntity();
+		create.user = entity;
+		create.roomCode = code;
+		create.time = new Date();
+		return await create.save();
 	}
 }
