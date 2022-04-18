@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Session, UnauthorizedException } from "@nestjs/common";
-import { MySession } from "../../context
+import { MySession } from "../../context";
 import { CreateRoomDTO } from "./dto/createroom.dto";
 import { RoomsService } from "./rooms.service";
 
